@@ -1,18 +1,12 @@
-
-const bcrypt = require("bcrypt");
 const express = require("express");
+const app = express();   // 🔥 MUST BE HERE FIRST
 const mysql = require("mysql2");
+const bcrypt = require("bcrypt");
 const cors = require("cors");
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
-console.log("SERVER LOADED");
 
-
-
-
-
-const app = express();
 
 app.use(express.json());
 app.use(cors());
@@ -22,15 +16,16 @@ app.use(cors());
 const db = mysql.createPool({
   host: "srv843.hstgr.io",
   user: "u987008906_abinithi",
-  password: "Abilogin@21",
+  password: "Abi_09767tuition",
   database: "u987008906_tuition_db",
   connectionLimit: 10
 });
 
-
 app.get("/", (req, res) => {
   res.send("Server Running 🚀");
 });
+
+
 
 
 // ================= LOGIN (FIXED - BOTH TABLES + OLD PASSWORD SUPPORT) =================
@@ -1142,67 +1137,6 @@ app.get("/tutorial/pdf/:adm", (req, res) => {
 });
 
 
-
-
-// ================= START =================
-app.listen(5001, () => {
-  console.log("🚀 Server Running on http://localhost:5001");
-});
-=======
-const bcrypt = require("bcrypt");
-const express = require("express");
-const mysql = require("mysql2");
-const cors = require("cors");
-const path = require("path");
-
-const app = express();
-
-app.use(express.json());
-
-app.use(cors({
-  origin: "https://theseg.in", 
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
-
-
-// 🔥 Serve frontend (optional)
-app.use(express.static(path.join(__dirname, "public_html")));
-
-// ✅ DB CONNECTION (HOSTING DB)
-const db = mysql.createPool({
-  host: "srv843.hstgr.io",
-  user: "u987008906_abinithi",   // ⚠️ MUST BE FULL USERNAME
-  password: "Abi_09767tuition",
-  database: "u987008906_tuition_db",
-  port: 3306,
-  ssl: { rejectUnauthorized: false },
-  connectionLimit: 10
-});
-
-
-
-
-
-// 🔥 DB CONNECTION TEST
-db.getConnection((err, connection) => {
-  if (err) {
-    console.log("❌ DB CONNECTION FAILED:", err);
-  } else {
-    console.log("✅ DB CONNECTED SUCCESSFULLY");
-    connection.release();
-  }
-});
-
-
-
-
-// ✅ TEST ROUTE
-app.get("/", (req, res) => {
-  res.send("Server Running 🚀");
-});
-
 // ================= LOGIN =================
 app.post("/login", (req, res) => {
 
@@ -1287,7 +1221,8 @@ app.post("/login", (req, res) => {
 });
 
 // 🔥 IMPORTANT FOR RENDER
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
+
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
