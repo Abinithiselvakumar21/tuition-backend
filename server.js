@@ -1243,6 +1243,7 @@ app.listen(PORT, () => {
 
 
 
+
 // UPDATE
 app.put("/student/update/:adm", (req, res) => {
   const d = req.body;
@@ -1347,10 +1348,11 @@ app.post("/add-tuition", async (req, res) => {
         type || "tuition"
       ],
       (err) => {
-        if (err) {
-          console.log("DB ERROR:", err); // 🔥 IMPORTANT
-          return res.status(500).send("Add failed");
-        }
+if (err) {
+  console.log("DB ERROR FULL:", err.sqlMessage || err);
+  return res.status(500).send(err.sqlMessage || "DB Error");
+}
+
         res.send("Added");
       }
     );
