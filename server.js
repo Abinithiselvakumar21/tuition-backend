@@ -23,6 +23,17 @@ const db = mysql.createPool({
   connectionLimit: 10
 });
 
+
+db.getConnection((err, connection) => {
+  if (err) {
+    console.log("❌ DB CONNECTION FAILED:", err.message);
+  } else {
+    console.log("✅ DB CONNECTED SUCCESS");
+    connection.release();
+  }
+});
+
+
 app.get("/", (req, res) => {
   res.send("Server Running 🚀");
 });
