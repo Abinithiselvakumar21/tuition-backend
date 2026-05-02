@@ -10,13 +10,15 @@ const fs = require("fs");
 
 app.use(express.json());
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+
 
 
 
 const db = mysql.createPool({
   host: "srv843.hstgr.io",
   user: "u987008906_abinithi",
-  password: "Abi_09767tuition",
+  password: "Abilogin@21",
   database: "u987008906_tuition_db",
   connectionLimit: 10
 });
@@ -1288,7 +1290,7 @@ app.delete("/student/delete/:adm", (req, res) => {
 
 
 // ================= ADD TUITION =================
-app.post("/add-student", async (req, res) => {
+app.post("/add-tuition", async (req, res) => {
 
   console.log(req.body); // 🔥 DEBUG
 
