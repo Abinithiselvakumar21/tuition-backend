@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Upload</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      width: 350px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-top: 10px;
+      color: #555;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    select:focus, input:focus {
+      border-color: #ff7a00;
+      box-shadow: 0 0 5px rgba(255,122,0,0.3);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      background: #ff7a00;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #e66a00;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<div class="form-container">
+
+<h2>Upload Study Material</h2>
+
+<form action="upload.php" method="POST" enctype="multipart/form-data">
+
+  <!-- CLASS -->
+  <label>Class:</label>
+  <select id="class" name="class" onchange="updateSubjects()" required>
+    <option value="">Select Class</option>
+    <option value="10">10th</option>
+    <option value="12">12th</option>
+  </select>
+
+  <!-- BOARD -->
+  <label>Board:</label>
+  <select name="board" required>
+    <option value="state">State Board</option>
+    <option value="cbse">CBSE</option>
+  </select>
+
+  <label>Medium:</label><br>
+<select name="medium" required>
+  <option value="tamil">Tamil Medium</option>
+  <option value="english">English Medium</option>
+</select>
+<br><br>
+
+
+  <!-- SUBJECT -->
+  <label>Subject:</label>
+  <select id="subject" name="subject" required>
+    <option value="">Select Subject</option>
+  </select>
+
+  <!-- TITLE -->
+  <label>Title:</label>
+  <input type="text" name="title" placeholder="Enter PDF Title" required>
+
+  <!-- FILE -->
+  <label>Select PDF:</label>
+  <input type="file" name="pdf" accept="application/pdf" required>
+
+  <button type="submit">Upload</button>
+
+</form>
+
+</div>
+
+<!-- 🔥 SCRIPT -->
+<script>
+function updateSubjects() {
+  const classValue = document.getElementById("class").value;
+  const subjectDropdown = document.getElementById("subject");
+
+  subjectDropdown.innerHTML = "<option value=''>Select Subject</option>";
+
+  if (classValue === "10") {
+    const subjects10 = ["Tamil", "English", "Maths", "Science", "Social"];
+
+    subjects10.forEach(sub => {
+      let option = document.createElement("option");
+      option.value = sub;
+      option.text = sub;
+      subjectDropdown.appendChild(option);
+    });
+  }
+
+  if (classValue === "12") {
+    const subjects12 = [
+      "Tamil", "English", "Maths", "Physics", "Chemistry",
+      "Botany", "Zoology", "Biology",
+      "Computer Science", "Accountancy", "Economics",
+      "Commerce", "History"
+    ];
+
+    subjects12.forEach(sub => {
+      let option = document.createElement("option");
+      option.value = sub;
+      option.text = sub;
+      subjectDropdown.appendChild(option);
+    });
+  }
+}
+</script>
+
+</body>
+</html>
