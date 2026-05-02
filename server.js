@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 const bcrypt = require("bcrypt");
 const express = require("express");
 const mysql = require("mysql2");
@@ -2293,4 +2293,4 @@ app.get("/tutorial/pdf/:adm", (req, res) => {
   );
 });
 
->>>>>>> 9d5a6ce45920891e718483a0aa7efa84733dfe9b
+
