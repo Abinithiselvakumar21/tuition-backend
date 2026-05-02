@@ -42,9 +42,14 @@ app.get("/", (req, res) => {
 
 
 // ================= LOGIN (FIXED - BOTH TABLES + OLD PASSWORD SUPPORT) =================
+// ================= LOGIN (FIXED & CLEAN) =================
 app.post("/login", (req, res) => {
 
   const { admission_number, password } = req.body;
+
+  if (!admission_number || !password) {
+    return res.status(400).send("Missing credentials");
+  }
 
   const normalize = (s) => (s || "").toString().trim().toLowerCase();
 
@@ -59,26 +64,25 @@ app.post("/login", (req, res) => {
     }
   };
 
-  const handleUser = async (user, type) => {
-
-    if (!user) {
-      return res.status(401).json({ message: "Invalid user" });
-    }
+  const handleLogin = async (user, type) => {
 
     const match = await checkPassword(password, user.password);
 
     if (!match) {
-      return res.status(401).json({ message: "Invalid user" });
+      return res.status(401).send("Invalid credentials");
     }
 
     if (normalize(user.status) !== "active") {
-      return res.status(401).json({ message: "User inactive" });
+      return res.status(401).send("Account inactive");
     }
 
     return res.json({
       message: "Login successful",
       type: type,
-      admission_number: user.admission_number
+      user: {
+        admission_number: user.admission_number,
+        name: user.name
+      }
     });
   };
 
@@ -86,48 +90,48 @@ app.post("/login", (req, res) => {
   db.query(
     "SELECT * FROM students WHERE admission_number=?",
     [admission_number],
-    async (err, result) => {
+    (err, result) => {
 
       if (err) {
         console.log(err);
-        return res.status(500).json({ message: "Server error" });
+        return res.status(500).send("Server error");
       }
 
       if (result.length > 0) {
-        return handleUser(result[0], "tuition");
+        return handleLogin(result[0], "tuition");
       }
 
       // ================= COMPUTER =================
       db.query(
         "SELECT * FROM computer_students WHERE admission_number=?",
         [admission_number],
-        async (err2, result2) => {
+        (err2, result2) => {
 
           if (err2) {
             console.log(err2);
-            return res.status(500).json({ message: "Server error" });
+            return res.status(500).send("Server error");
           }
 
           if (result2.length > 0) {
-            return handleUser(result2[0], "computer");
+            return handleLogin(result2[0], "computer");
           }
 
           // ================= TUTORIAL =================
           db.query(
             "SELECT * FROM tutorial_registration WHERE admission_number=?",
             [admission_number],
-            async (err3, result3) => {
+            (err3, result3) => {
 
               if (err3) {
                 console.log(err3);
-                return res.status(500).json({ message: "Server error" });
+                return res.status(500).send("Server error");
               }
 
               if (result3.length > 0) {
-                return handleUser(result3[0], "tutorial");
+                return handleLogin(result3[0], "tutorial");
               }
 
-              return res.status(401).json({ message: "Invalid user" });
+              return res.status(401).send("Invalid credentials");
             }
           );
         }
