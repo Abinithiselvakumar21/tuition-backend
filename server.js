@@ -54,7 +54,7 @@ app.post("/login", (req, res) => {
         return await bcrypt.compare(input, dbPassword);
       }
       return input === dbPassword;
-    } catch {
+    } catch (err) {
       return false;
     }
   };
@@ -62,22 +62,23 @@ app.post("/login", (req, res) => {
   const handleUser = async (user, type) => {
 
     if (!user) {
-      return res.status(401).send("Invalid user");
+      return res.status(401).json({ message: "Invalid user" });
     }
 
     const match = await checkPassword(password, user.password);
 
     if (!match) {
-      return res.status(401).send("Invalid user");
+      return res.status(401).json({ message: "Invalid user" });
     }
 
     if (normalize(user.status) !== "active") {
-      return res.status(401).send("Invalid user");
+      return res.status(401).json({ message: "User inactive" });
     }
 
     return res.json({
       message: "Login successful",
-      type: type
+      type: type,
+      admission_number: user.admission_number
     });
   };
 
@@ -87,7 +88,10 @@ app.post("/login", (req, res) => {
     [admission_number],
     async (err, result) => {
 
-      if (err) return res.status(500).send("Server error");
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Server error" });
+      }
 
       if (result.length > 0) {
         return handleUser(result[0], "tuition");
@@ -99,7 +103,10 @@ app.post("/login", (req, res) => {
         [admission_number],
         async (err2, result2) => {
 
-          if (err2) return res.status(500).send("Server error");
+          if (err2) {
+            console.log(err2);
+            return res.status(500).json({ message: "Server error" });
+          }
 
           if (result2.length > 0) {
             return handleUser(result2[0], "computer");
@@ -111,22 +118,24 @@ app.post("/login", (req, res) => {
             [admission_number],
             async (err3, result3) => {
 
-              if (err3) return res.status(500).send("Server error");
+              if (err3) {
+                console.log(err3);
+                return res.status(500).json({ message: "Server error" });
+              }
 
               if (result3.length > 0) {
                 return handleUser(result3[0], "tutorial");
               }
 
-              // ❌ NOT FOUND ANYWHERE
-              return res.status(401).send("Invalid user");
+              return res.status(401).json({ message: "Invalid user" });
             }
           );
         }
       );
     }
   );
-
 });
+
 
 
 // UPDATE
