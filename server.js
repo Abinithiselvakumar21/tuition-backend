@@ -873,7 +873,8 @@ app.post("/register", async (req, res) => {
       subject,
       father_name,
       mother_name,
-      contact_details
+      contact_details,
+      address
     } = req.body;
 
     if (!admission_number || !password || !name) {
@@ -885,7 +886,7 @@ app.post("/register", async (req, res) => {
     db.query(
       `INSERT INTO tutorial_registration
       (admission_number,name,password,batch,class_group,medium,board,subject,
-       father_name,mother_name,contact_details,status)
+       father_name,mother_name,contact_details,address,status)
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         admission_number,
@@ -899,6 +900,7 @@ app.post("/register", async (req, res) => {
         father_name || "",
         mother_name || "",
         contact_details || "",
+        address || "",
         "active"
       ],
       (err) => {
@@ -1967,7 +1969,8 @@ app.post("/register", async (req, res) => {
       subject,
       father_name,
       mother_name,
-      contact_details
+      contact_details,
+      address
     } = req.body;
 
     if (!admission_number || !password || !name) {
@@ -1979,7 +1982,7 @@ app.post("/register", async (req, res) => {
     db.query(
       `INSERT INTO tutorial_registration
       (admission_number,name,password,batch,class_group,medium,board,subject,
-       father_name,mother_name,contact_details,status)
+       father_name,mother_name,contact_details,address,status)
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         admission_number,
@@ -1993,6 +1996,7 @@ app.post("/register", async (req, res) => {
         father_name || "",
         mother_name || "",
         contact_details || "",
+        address || "",
         "active"
       ],
       (err) => {
