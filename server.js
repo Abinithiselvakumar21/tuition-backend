@@ -1990,7 +1990,8 @@ app.post("/register", (req, res) => {
 
 const sql = `
   INSERT INTO tutorial_registration
-  (admission_number, name, password, batch, class_group, medium, board, subject, father_name, mother_name, contact_details, address, status, type)
+  (admission_number, name, password, batch, class_group, medium, board, subject,
+   father_name, mother_name, contact_details, address, status)
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
@@ -1998,19 +1999,18 @@ db.query(sql, [
   admission_number,
   name,
   hashedPassword,
-  batch || null,
-  class_group || null,
-  medium || null,
-  board || null,
-  subject || null,
-  father_name || null,
-  mother_name || null,
-  contact_details || null,
-  address || null,
-  status || "active",
-  type || "tutorial_student"
-
+  batch,
+  class_group,
+  medium,
+  board,
+  subject,
+  father_name,
+  mother_name,
+  contact_details,
+  address,
+  status || "active"
 ], (err, result) => {
+
 
   if (err) {
     console.log("DB ERROR:", err);
