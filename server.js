@@ -20,8 +20,7 @@ const db = mysql.createPool({
   user: "u987008906_abinithi",
   password: "Abilogin@21",
   database: "u987008906_tuition_db",
-  port: 3306
-
+  connectionLimit: 10
 });
 
 
