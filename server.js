@@ -20,13 +20,18 @@ const db = mysql.createPool({
   user: "u987008906_abinithi",
   password: "Abilogin@21",
   database: "u987008906_tuition_db",
-  connectionLimit: 10
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
 
 db.getConnection((err, connection) => {
   if (err) {
-    console.log("❌ DB CONNECTION FAILED:", err.message);
+    console.log("❌ DB CONNECTION FAILED:");
+console.log(err);
+
   } else {
     console.log("✅ DB CONNECTED SUCCESS");
     connection.release();
