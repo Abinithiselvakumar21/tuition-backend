@@ -9,7 +9,11 @@ const fs = require("fs");
 
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "*",   // allow all (for now)
+  methods: ["GET","POST"]
+}));
+
 app.use(express.urlencoded({ extended: true }));
 
 
@@ -1959,128 +1963,59 @@ app.get("/computer/:adm", (req, res) => {
 
 
 // ================= TUTORIAL REGISTRATION =================
-app.post("/register", async (req, res) => {
+app.post("/register", (req, res) => {
 
-  try {
+  const {
+    admission_number,
+    name,
+    password,
+    batch,
+    class_group,
+    medium,
+    board,
+    subject,
+    father_name,
+    mother_name,
+    contact_details,
+    address
+  } = req.body;
 
-    const {
-      admission_number,
-      name,
-      password,
-      batch,
-      class_group,
-      medium,
-      board,
-      subject,
-      father_name,
-      mother_name,
-      contact_details,
-      address
-    } = req.body;
-
-    if (!admission_number || !password || !name) {
-      return res.send("Required fields missing");
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    db.query(
-      `INSERT INTO tutorial_registration
-      (admission_number,name,password,batch,class_group,medium,board,subject,
-       father_name,mother_name,contact_details,address,status)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [
-        admission_number,
-        name,
-        hashedPassword,
-        batch || "",
-        class_group || "",
-        medium || "",
-        board || "",
-        subject || "",
-        father_name || "",
-        mother_name || "",
-        contact_details || "",
-        address || "",
-        "active"
-      ],
-      (err) => {
-
-        if (err) {
-          console.log("DB ERROR:", err);
-          return res.send("Registration failed ❌");
-        }
-
-        res.send("Registered Successfully ✅");
-      }
-    );
-
-  } catch (e) {
-    console.log("SERVER ERROR:", e);
-    res.send("Server error ❌");
+  if (!admission_number || !name || !password) {
+    return res.send("Required fields missing ❌");
   }
 
-});
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
+  const sql = `
+    INSERT INTO tutorial_registration
+    (admission_number, name, password, batch, class_group, medium, board, subject, father_name, mother_name, contact_details, address)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
-// ================= GET ALL =================
-app.get("/tutorial-students", (req, res) => {
+  db.query(sql, [
+    admission_number,
+    name,
+    hashedPassword,
+    batch,
+    class_group,
+    medium,
+    board,
+    subject,
+    father_name,
+    mother_name,
+    contact_details,
+    address
+  ], (err, result) => {
 
-  db.query("SELECT * FROM tutorial_registration ORDER BY id DESC", (err, r) => {
+    if (err) {
+      console.log("DB ERROR:", err);   // 🔥 IMPORTANT
+      return res.send("Registration Failed ❌");
+    }
 
-    if (err) return res.send("Error");
+    res.send("Registration Successful ✅");
 
-    const data = r.map(s => {
-      const d = new Date(s.created_at);
-
-      return {
-        ...s,
-        joining_date: d.toLocaleDateString(),
-        joining_time: d.toLocaleTimeString()
-      };
-    });
-
-    res.json(data);
   });
-});
 
-
-// ================= GET SINGLE (VIEW + EDIT) =================
-app.get("/tutorial/:adm", (req,res)=>{
-
-  db.query(
-    "SELECT * FROM tutorial_registration WHERE admission_number=?",
-    [req.params.adm],
-    (err,result)=>{
-
-      if(err) return res.send("Error");
-
-      if(result.length === 0)
-        return res.send("Not found");
-
-      res.json(result[0]);
-    }
-  );
-
-});
-
-
-// ================= DELETE =================
-app.delete("/tutorial/delete/:adm", (req, res) => {
-
-  db.query(
-    "DELETE FROM tutorial_registration WHERE admission_number=?",
-    [req.params.adm],
-    (err) => {
-
-      if (err) {
-        console.log(err);
-        return res.send("Delete failed ❌");
-      }
-
-      res.send("Deleted Successfully ✅");
-    }
-  );
 });
 
 
