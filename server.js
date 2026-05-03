@@ -1980,46 +1980,59 @@ app.post("/register", (req, res) => {
     type
   } = req.body;
 
+  // 🔥 SAFE DEFAULT VALUES (IMPORTANT)
+  const statusValue = status || "active";
+  const typeValue = type || "tutorial";
+
+  // ❌ VALIDATION
   if (!admission_number || !name || !password) {
-    return res.send("Required fields missing ❌");
+    return res.status(400).send("Required fields missing ❌");
   }
 
+  // 🔐 PASSWORD HASH
   const hashedPassword = bcrypt.hashSync(password, 10);
 
-const sql = 
-  `INSERT INTO tutorial_registration
-  (admission_number, name, password, batch, class_group, medium, board, subject,
-   father_name, mother_name, contact_details, address, status, type)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  // 🧾 SQL QUERY
+  const sql = `
+    INSERT INTO tutorial_registration
+    (admission_number, name, password, batch, class_group, medium, board, subject,
+     father_name, mother_name, contact_details, address, status, type)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
+  // 💾 DB INSERT
+  db.query(sql, [
+    admission_number,
+    name,
+    hashedPassword,
+    batch || null,
+    class_group || null,
+    medium || null,
+    board || null,
+    subject || null,
+    father_name || null,
+    mother_name || null,
+    contact_details || null,
+    address || null,
+    statusValue,
+    typeValue
+  ], (err, result) => {
 
-db.query(sql, [
-  admission_number,
-  name,
-  hashedPassword,
-  batch || null,
-  class_group || null,
-  medium || null,
-  board || null,
-  subject || null,
-  father_name || null,
-  mother_name || null,
-  contact_details || null,
-  address || null,
-  status || "active",
-  type || "student"
-], (err, result) => {
+    if (err) {
+      console.log("❌ DB ERROR:", err);
 
+      return res.status(500).json({
+        success: false,
+        message: "Registration Failed ❌"
+      });
+    }
 
-  if (err) {
-    console.log("DB ERROR:", err);
-    return res.send("Registration Failed ❌");
-  }
+    return res.status(200).json({
+      success: true,
+      message: "Registration Successful ✅"
+    });
 
-  res.send("Registration Successful ✅");
-
-});
-
+  });
 
 });
 
