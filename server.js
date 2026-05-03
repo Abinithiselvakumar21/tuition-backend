@@ -207,8 +207,6 @@ app.delete("/student/delete/:adm", (req, res) => {
 
 
 
-
-
 // ================= ADD STUDENT =================
 app.post("/add-student", async (req, res) => {
 
@@ -1991,7 +1989,7 @@ app.post("/register", (req, res) => {
 const sql = `
   INSERT INTO tutorial_registration
   (admission_number, name, password, batch, class_group, medium, board, subject,
-   father_name, mother_name, contact_details, address, status)
+   father_name, mother_name, contact_details, address, status,type)
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
@@ -1999,18 +1997,24 @@ db.query(sql, [
   admission_number,
   name,
   hashedPassword,
-  batch,
-  class_group,
-  medium,
-  board,
-  subject,
-  father_name,
-  mother_name,
-  contact_details,
-  address,
-  status || "active"
-], (err, result) => {
+  batch || null,
+  class_group || null,
+  medium || null,
+  board || null,
+  subject || null,
+  father_name || null,
+  mother_name || null,
+  contact_details || null,
+  address || null,
+  status || "active",
+   type || "student"
+], 
+(err, result) => {
 
+
+
+
+  
 
   if (err) {
     console.log("DB ERROR:", err);
