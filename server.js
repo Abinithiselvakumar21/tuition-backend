@@ -1986,12 +1986,12 @@ app.post("/register", (req, res) => {
 
   const hashedPassword = bcrypt.hashSync(password, 10);
 
-const sql = `
-  INSERT INTO tutorial_registration
+const sql = 
+  `INSERT INTO tutorial_registration
   (admission_number, name, password, batch, class_group, medium, board, subject,
-   father_name, mother_name, contact_details, address, status,type)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`;
+   father_name, mother_name, contact_details, address, status, type)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
 
 db.query(sql, [
   admission_number,
@@ -2007,14 +2007,9 @@ db.query(sql, [
   contact_details || null,
   address || null,
   status || "active",
-   type || "student"
-], 
-(err, result) => {
+  type || "student"
+], (err, result) => {
 
-
-
-
-  
 
   if (err) {
     console.log("DB ERROR:", err);
