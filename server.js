@@ -1977,7 +1977,8 @@ app.post("/register", (req, res) => {
     father_name,
     mother_name,
     contact_details,
-    address
+    address,
+    type
   } = req.body;
 
   if (!admission_number || !name || !password) {
@@ -1986,35 +1987,38 @@ app.post("/register", (req, res) => {
 
   const hashedPassword = bcrypt.hashSync(password, 10);
 
-  const sql = `
-    INSERT INTO tutorial_registration
-    (admission_number, name, password, batch, class_group, medium, board, subject, father_name, mother_name, contact_details, address)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+const sql = `
+  INSERT INTO tutorial_registration
+  (admission_number, name, password, batch, class_group, medium, board, subject, father_name, mother_name, contact_details, address, type)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
-  db.query(sql, [
-    admission_number,
-    name,
-    hashedPassword,
-    batch,
-    class_group,
-    medium,
-    board,
-    subject,
-    father_name,
-    mother_name,
-    contact_details,
-    address
-  ], (err, result) => {
+db.query(sql, [
+  admission_number,
+  name,
+  hashedPassword,
+  batch || null,
+  class_group || null,
+  medium || null,
+  board || null,
+  subject || null,
+  father_name || null,
+  mother_name || null,
+  contact_details || null,
+  address || null,
+  type || "tutorial_student"
 
-    if (err) {
-      console.log("DB ERROR:", err);   // 🔥 IMPORTANT
-      return res.send("Registration Failed ❌");
-    }
+], (err, result) => {
 
-    res.send("Registration Successful ✅");
+  if (err) {
+    console.log("DB ERROR:", err);
+    return res.send("Registration Failed ❌");
+  }
 
-  });
+  res.send("Registration Successful ✅");
+
+});
+
 
 });
 
