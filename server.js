@@ -1978,6 +1978,7 @@ app.post("/register", (req, res) => {
     mother_name,
     contact_details,
     address,
+    status,
     type
   } = req.body;
 
@@ -1989,7 +1990,7 @@ app.post("/register", (req, res) => {
 
 const sql = `
   INSERT INTO tutorial_registration
-  (admission_number, name, password, batch, class_group, medium, board, subject, father_name, mother_name, contact_details, address, type)
+  (admission_number, name, password, batch, class_group, medium, board, subject, father_name, mother_name, contact_details, address, status, type)
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
@@ -2006,6 +2007,7 @@ db.query(sql, [
   mother_name || null,
   contact_details || null,
   address || null,
+  status || "active",
   type || "tutorial_student"
 
 ], (err, result) => {
