@@ -939,24 +939,18 @@ app.get("/tutorial-students", (req, res) => {
 
   db.query("SELECT * FROM tutorial_registration ORDER BY id DESC", (err, r) => {
 
-    if (err) return res.send("Error");
+    if (err) {
+      console.log(err);
+      return res.json({ success:false });
+    }
 
-    const data = r.map(s => {
-      const d = new Date(s.created_at);
-
-      return {
-        ...s,
-        joining_date: d.toLocaleDateString(),
-        joining_time: d.toLocaleTimeString()
-      };
-    });
-
-    res.json(data);
+    res.json(r);
   });
+
 });
 
 
-// ================= GET SINGLE (VIEW + EDIT) =================
+// ================= GET SINGLE =================
 app.get("/tutorial/:adm", (req,res)=>{
 
   db.query(
@@ -964,16 +958,21 @@ app.get("/tutorial/:adm", (req,res)=>{
     [req.params.adm],
     (err,result)=>{
 
-      if(err) return res.send("Error");
+      if(err){
+        console.log(err);
+        return res.json({ success:false });
+      }
 
-      if(result.length === 0)
-        return res.send("Not found");
+      if(result.length === 0){
+        return res.json({ success:false });
+      }
 
       res.json(result[0]);
     }
   );
 
 });
+
 
 // ================= UPDATE =================
 app.put("/tutorial/update/:adm", async (req, res) => {
@@ -1011,7 +1010,6 @@ app.put("/tutorial/update/:adm", async (req, res) => {
       contact_details
     ];
 
-    // 🔐 password இருந்தா மட்டும் update
     if (password && password.trim() !== "") {
       const hashed = await bcrypt.hash(password, 10);
       query += ", password=?";
@@ -1021,20 +1019,24 @@ app.put("/tutorial/update/:adm", async (req, res) => {
     query += " WHERE admission_number=?";
     values.push(req.params.adm);
 
-    db.query(query, values, (err) => {
+    db.query(query, values, (err, result) => {
 
       if (err) {
-        console.log("UPDATE ERROR:", err);
-        return res.json({ success: false });
+        console.log(err);
+        return res.json({ success:false, message:"Update failed ❌" });
       }
 
-      res.json({ success: true });
+      if(result.affectedRows === 0){
+        return res.json({ success:false, message:"No record found ❌" });
+      }
+
+      res.json({ success:true, message:"Updated successfully ✅" });
 
     });
 
   } catch (e) {
-    console.log("SERVER ERROR:", e);
-    res.json({ success: false });
+    console.log(e);
+    res.json({ success:false, message:"Server error ❌" });
   }
 
 });
@@ -1043,46 +1045,31 @@ app.put("/tutorial/update/:adm", async (req, res) => {
 // ================= DELETE =================
 app.delete("/tutorial/delete/:adm", (req, res) => {
 
-  console.log("Delete request for:", req.params.adm);
-
   db.query(
     "DELETE FROM tutorial_registration WHERE admission_number=?",
     [req.params.adm],
     (err, result) => {
 
       if (err) {
-        console.log("DELETE ERROR:", err);
-        return res.json({
-          success: false,
-          message: "Delete failed ❌"
-        });
+        console.log(err);
+        return res.json({ success:false, message:"Delete failed ❌" });
       }
 
-      console.log("Rows deleted:", result.affectedRows);
-
-      if (result.affectedRows === 0) {
-        return res.json({
-          success: false,
-          message: "No record found ❌"
-        });
+      if(result.affectedRows === 0){
+        return res.json({ success:false, message:"No record found ❌" });
       }
 
-      res.json({
-        success: true,
-        message: "Deleted Successfully ✅"
-      });
+      res.json({ success:true, message:"Deleted successfully ✅" });
 
     }
   );
 });
 
-// ================= STATUS TOGGLE =================
+
+// ================= STATUS =================
 app.put("/tutorial/status/:adm", (req, res) => {
 
   const { status } = req.body;
-
-  console.log("Incoming status:", status);
-  console.log("Admission:", req.params.adm);
 
   db.query(
     "UPDATE tutorial_registration SET status=? WHERE admission_number=?",
@@ -1090,26 +1077,15 @@ app.put("/tutorial/status/:adm", (req, res) => {
     (err, result) => {
 
       if (err) {
-        console.log("STATUS ERROR:", err);
-        return res.json({
-          success: false,
-          message: "Status update failed ❌"
-        });
+        console.log(err);
+        return res.json({ success:false, message:"Status failed ❌" });
       }
 
-      console.log("Rows affected:", result.affectedRows);
-
-      if (result.affectedRows === 0) {
-        return res.json({
-          success: false,
-          message: "No record found ❌"
-        });
+      if(result.affectedRows === 0){
+        return res.json({ success:false, message:"No record found ❌" });
       }
 
-      res.json({
-        success: true,
-        message: "Status updated ✅"
-      });
+      res.json({ success:true, message:"Status updated ✅" });
 
     }
   );
