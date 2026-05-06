@@ -1043,50 +1043,40 @@ app.put("/tutorial/update/:adm", async (req, res) => {
 
 
 // ================= DELETE =================
-app.delete("/tutorial/delete/:adm", (req, res) => {
+app.delete("/tutorial/delete/:id", (req, res) => {
 
   db.query(
-    "DELETE FROM tutorial_registration WHERE admission_number=?",
-    [req.params.adm],
+    "DELETE FROM tutorial_registration WHERE id=?",
+    [req.params.id],
     (err, result) => {
 
       if (err) {
         console.log(err);
-        return res.json({ success:false, message:"Delete failed ❌" });
+        return res.json({ success:false });
       }
 
-      if(result.affectedRows === 0){
-        return res.json({ success:false, message:"No record found ❌" });
-      }
-
-      res.json({ success:true, message:"Deleted successfully ✅" });
-
+      res.json({ success:true });
     }
   );
 });
 
 
 // ================= STATUS =================
-app.put("/tutorial/status/:adm", (req, res) => {
+app.put("/tutorial/status/:id", (req, res) => {
 
   const { status } = req.body;
 
   db.query(
-    "UPDATE tutorial_registration SET status=? WHERE admission_number=?",
-    [status, req.params.adm],
+    "UPDATE tutorial_registration SET status=? WHERE id=?",
+    [status, req.params.id],
     (err, result) => {
 
       if (err) {
         console.log(err);
-        return res.json({ success:false, message:"Status failed ❌" });
+        return res.json({ success:false });
       }
 
-      if(result.affectedRows === 0){
-        return res.json({ success:false, message:"No record found ❌" });
-      }
-
-      res.json({ success:true, message:"Status updated ✅" });
-
+      res.json({ success:true });
     }
   );
 });
