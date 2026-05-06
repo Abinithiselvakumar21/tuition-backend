@@ -1043,42 +1043,77 @@ app.put("/tutorial/update/:adm", async (req, res) => {
 // ================= DELETE =================
 app.delete("/tutorial/delete/:adm", (req, res) => {
 
+  console.log("Delete request for:", req.params.adm);
+
   db.query(
     "DELETE FROM tutorial_registration WHERE admission_number=?",
     [req.params.adm],
-    (err) => {
+    (err, result) => {
 
       if (err) {
-        console.log(err);
-        return res.send("Delete failed ❌");
+        console.log("DELETE ERROR:", err);
+        return res.json({
+          success: false,
+          message: "Delete failed ❌"
+        });
       }
 
-      res.send("Deleted Successfully ✅");
+      console.log("Rows deleted:", result.affectedRows);
+
+      if (result.affectedRows === 0) {
+        return res.json({
+          success: false,
+          message: "No record found ❌"
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Deleted Successfully ✅"
+      });
+
     }
   );
 });
-
 
 // ================= STATUS TOGGLE =================
 app.put("/tutorial/status/:adm", (req, res) => {
 
   const { status } = req.body;
 
+  console.log("Incoming status:", status);
+  console.log("Admission:", req.params.adm);
+
   db.query(
     "UPDATE tutorial_registration SET status=? WHERE admission_number=?",
     [status, req.params.adm],
-    (err) => {
+    (err, result) => {
 
       if (err) {
-        console.log(err);
-        return res.send("Status update failed ❌");
+        console.log("STATUS ERROR:", err);
+        return res.json({
+          success: false,
+          message: "Status update failed ❌"
+        });
       }
 
-      res.send("Status updated ✅");
+      console.log("Rows affected:", result.affectedRows);
+
+      if (result.affectedRows === 0) {
+        return res.json({
+          success: false,
+          message: "No record found ❌"
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Status updated ✅"
+      });
+
     }
   );
 });
-
 
 // ================= PUT =================
 app.get("/tutorial/pdf/:adm", (req, res) => {
