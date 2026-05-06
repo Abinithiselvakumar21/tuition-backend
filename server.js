@@ -6,8 +6,6 @@ const cors = require("cors");
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
-
-
 app.use(express.json());
 app.use(cors({
   origin: "*",   // allow all (for now)
@@ -48,9 +46,6 @@ app.get("/", (req, res) => {
 });
 
 
-
-
-// ================= LOGIN (FIXED - BOTH TABLES + OLD PASSWORD SUPPORT) =================
 // ================= LOGIN (FIXED & CLEAN) =================
 app.post("/login", (req, res) => {
 
@@ -894,7 +889,7 @@ app.post("/register", async (req, res) => {
       `INSERT INTO tutorial_registration
       (admission_number,name,password,batch,class_group,medium,board,subject,
        father_name,mother_name,contact_details,address,status)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         admission_number,
         name,
@@ -914,16 +909,26 @@ app.post("/register", async (req, res) => {
 
         if (err) {
           console.log("DB ERROR:", err);
-          return res.send("Registration failed ❌");
+          return res.json({
+  success: false,
+  message: "Registration failed ❌"
+});
         }
 
-        res.send("Registered Successfully ✅");
+        res.json({
+  success: true,
+  message: "Registered Successfully ✅"
+});
+
       }
     );
 
   } catch (e) {
     console.log("SERVER ERROR:", e);
-    res.send("Server error ❌");
+    res.json({
+  success: false,
+  message: "Server error ❌"
+});
   }
 
 });
