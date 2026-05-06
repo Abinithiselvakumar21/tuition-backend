@@ -975,6 +975,70 @@ app.get("/tutorial/:adm", (req,res)=>{
 
 });
 
+// ================= UPDATE =================
+app.put("/tutorial/update/:adm", async (req, res) => {
+
+  try {
+
+    const {
+      name,
+      class_group,
+      subject,
+      batch,
+      medium,
+      board,
+      father_name,
+      mother_name,
+      contact_details,
+      password
+    } = req.body;
+
+    let query = `
+      UPDATE tutorial_registration
+      SET name=?, class_group=?, subject=?, batch=?, medium=?, board=?,
+          father_name=?, mother_name=?, contact_details=?
+    `;
+
+    let values = [
+      name,
+      class_group,
+      subject,
+      batch,
+      medium,
+      board,
+      father_name,
+      mother_name,
+      contact_details
+    ];
+
+    // 🔐 password இருந்தா மட்டும் update
+    if (password && password.trim() !== "") {
+      const hashed = await bcrypt.hash(password, 10);
+      query += ", password=?";
+      values.push(hashed);
+    }
+
+    query += " WHERE admission_number=?";
+    values.push(req.params.adm);
+
+    db.query(query, values, (err) => {
+
+      if (err) {
+        console.log("UPDATE ERROR:", err);
+        return res.json({ success: false });
+      }
+
+      res.json({ success: true });
+
+    });
+
+  } catch (e) {
+    console.log("SERVER ERROR:", e);
+    res.json({ success: false });
+  }
+
+});
+
 
 // ================= DELETE =================
 app.delete("/tutorial/delete/:adm", (req, res) => {
