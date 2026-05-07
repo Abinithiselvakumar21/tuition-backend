@@ -52,163 +52,85 @@ app.post("/login", (req, res) => {
 
   const { admission_number, password } = req.body;
 
-  if (!admission_number || !password) {
-    return res.status(400).send("Missing credentials");
-  }
-
-  const normalize = (s) => (s || "").toString().trim().toLowerCase();
-
   const checkPassword = async (input, dbPassword) => {
     try {
       if (dbPassword && dbPassword.startsWith("$2")) {
         return await bcrypt.compare(input, dbPassword);
       }
       return input === dbPassword;
-    } catch (err) {
+    } catch {
       return false;
     }
   };
 
-  const handleLogin = async (user, type) => {
+  const handleUser = async (user, type) => {
 
     const match = await checkPassword(password, user.password);
 
-    if (!match) {
-      return res.status(401).send("Invalid credentials");
-    }
+    if (!match) return res.status(401).send("Invalid user");
 
-    if (normalize(user.status) !== "active") {
-      return res.status(401).send("Account inactive");
+    if ((user.status || "").toLowerCase() !== "active") {
+      return res.status(401).send("Inactive user");
     }
 
     return res.json({
       message: "Login successful",
-      type: type,
-      user: {
-        admission_number: user.admission_number,
-        name: user.name
-      }
+      type: type
     });
   };
 
-  // ================= TUITION =================
+  // TUITION
   db.query(
-    "SELECT * FROM students WHERE admission_number=?",
+    "SELECT * FROM tuition_students WHERE admission_number=?",
     [admission_number],
-    (err, result) => {
+    async (err, result) => {
 
-      if (err) {
-        console.log(err);
-        return res.status(500).send("Server error");
-      }
+      if (err) return res.status(500).send("Server error");
 
       if (result.length > 0) {
-        return handleLogin(result[0], "tuition");
+        return handleUser(result[0], "tuition");
       }
 
-      // ================= COMPUTER =================
+      // COMPUTER
       db.query(
         "SELECT * FROM computer_students WHERE admission_number=?",
         [admission_number],
-        (err2, result2) => {
+        async (err2, result2) => {
 
-          if (err2) {
-            console.log(err2);
-            return res.status(500).send("Server error");
-          }
+          if (err2) return res.status(500).send("Server error");
 
           if (result2.length > 0) {
-            return handleLogin(result2[0], "computer");
+            return handleUser(result2[0], "computer");
           }
 
-          // ================= TUTORIAL =================
+          // TUTORIAL
           db.query(
             "SELECT * FROM tutorial_registration WHERE admission_number=?",
             [admission_number],
-            (err3, result3) => {
+            async (err3, result3) => {
 
-              if (err3) {
-                console.log(err3);
-                return res.status(500).send("Server error");
-              }
+              if (err3) return res.status(500).send("Server error");
 
               if (result3.length > 0) {
-                return handleLogin(result3[0], "tutorial");
+                return handleUser(result3[0], "tutorial");
               }
 
-              return res.status(401).send("Invalid credentials");
+              return res.status(401).send("Invalid user");
             }
           );
         }
       );
     }
   );
-});
-
-
-
-// UPDATE
-app.put("/student/update/:adm", (req, res) => {
-  const d = req.body;
-
-  db.query(
-    `UPDATE students SET
-    admission_number=?, name=?, class_group=?, batch=?, medium=?, board=?,
-    school_details=?, father_name=?, mother_name=?, contact_details=?, address=?
-    WHERE admission_number=?`,
-    [
-      d.admission_number,
-      d.name,
-      d.class_group,
-      d.batch,
-      d.medium,
-      d.board,
-      d.school_details,
-      d.father_name,
-      d.mother_name,
-      d.contact_details,
-      d.address,
-      req.params.adm
-    ],
-    (err) => {
-      if (err) return res.status(500).send("Update failed");
-      res.send("Updated");
-    }
-  );
-});
-
-// STATUS
-app.put("/student/status/:adm", (req, res) => {
-  db.query(
-    "UPDATE students SET status=? WHERE admission_number=?",
-    [req.body.status, req.params.adm],
-    (err) => {
-      if (err) return res.status(500).send("Error");
-      res.send("OK");
-    }
-  );
-});
-
-// DELETE
-app.delete("/student/delete/:adm", (req, res) => {
-  db.query(
-    "DELETE FROM students WHERE admission_number=?",
-    [req.params.adm],
-    (err) => {
-      if (err) return res.status(500).send("Error");
-      res.send("Deleted");
-    }
-  );
-});
+}); // 🔥 THIS IS THE MISSING CLOSING BRACE
 
 
 
 // ================= ADD STUDENT =================
 app.post("/add-student", async (req, res) => {
 
-  console.log(req.body); // DEBUG
-
   try {
+
     const {
       admission_number,
       name,
@@ -226,58 +148,241 @@ app.post("/add-student", async (req, res) => {
       type
     } = req.body;
 
-    // 🔥 validate required fields
     if (!admission_number || !name) {
-      return res.status(400).send("Admission number and name required");
+      return res.status(400).json({
+        success: false,
+        message: "Admission number & name required"
+      });
     }
 
-    // 🔐 hash password safely
     let hashedPassword = null;
+
     if (password && password.trim() !== "") {
       hashedPassword = await bcrypt.hash(password, 10);
     }
 
-    db.query(
-      `INSERT INTO students
+    const sql = `
+      INSERT INTO students
       (admission_number, name, password, batch, class_group, medium, board,
        father_name, mother_name, contact_details, school_details, address, status, type)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        admission_number,
-        name,
-        hashedPassword,
-        batch || null,
-        class_group || null,
-        medium || null,
-        board || null,
-        father_name || null,
-        mother_name || null,
-        contact_details || null,
-        school_details || null,
-        address || null,
-        status || "active",
-        type || "student"
-      ],
-      (err, result) => {
-        if (err) {
-          console.log("DB ERROR:", err);
-          return res.status(500).send("Add failed");
-        }
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-        res.send("Student Added Successfully");
+    db.query(sql, [
+      admission_number,
+      name,
+      hashedPassword,
+      batch || null,
+      class_group || null,
+      medium || null,
+      board || null,
+      father_name || null,
+      mother_name || null,
+      contact_details || null,
+      school_details || null,
+      address || null,
+      status || "active",
+      type || "student"
+    ], (err) => {
+
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: "Add failed"
+        });
       }
-    );
+
+      res.json({
+        success: true,
+        message: "Student added successfully"
+      });
+    });
 
   } catch (e) {
-    console.log("CATCH ERROR:", e);
-    res.status(500).send("Server error");
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
   }
 });
 
 
+// ================= VIEW SINGLE STUDENT =================
+app.get("/student/:adm", (req, res) => {
+
+  db.query(
+    "SELECT * FROM students WHERE admission_number=?",
+    [req.params.adm],
+    (err, result) => {
+
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Fetch failed"
+        });
+      }
+
+      if (result.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Not found"
+        });
+      }
+
+      res.json(result[0]);
+    }
+  );
+});
 
 
 
+// ================= UPDATE STUDENT =================
+app.put("/student/update/:adm", (req, res) => {
+
+  const adm = req.params.adm;
+
+  const {
+    name,
+    batch,
+    class_group,
+    medium,
+    board,
+    father_name,
+    mother_name,
+    contact_details,
+    password
+  } = req.body;
+
+  let sql;
+  let values;
+
+  if (password && password.trim() !== "") {
+
+    sql = `
+      UPDATE students SET
+      name=?,
+      batch=?,
+      class_group=?,
+      medium=?,
+      board=?,
+      father_name=?,
+      mother_name=?,
+      contact_details=?,
+      password=?
+      WHERE admission_number=?
+    `;
+
+    values = [
+      name,
+      batch,
+      class_group,
+      medium,
+      board,
+      father_name,
+      mother_name,
+      contact_details,
+      password,
+      adm
+    ];
+
+  } else {
+
+    sql = `
+      UPDATE students SET
+      name=?,
+      batch=?,
+      class_group=?,
+      medium=?,
+      board=?,
+      father_name=?,
+      mother_name=?,
+      contact_details=?
+      WHERE admission_number=?
+    `;
+
+    values = [
+      name,
+      batch,
+      class_group,
+      medium,
+      board,
+      father_name,
+      mother_name,
+      contact_details,
+      adm
+    ];
+  }
+
+  db.query(sql, values, (err) => {
+
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        success: false,
+        message: "Update failed"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Updated successfully"
+    });
+  });
+});
+
+
+// ================= STATUS TOGGLE =================
+app.put("/student/status/:adm", (req, res) => {
+
+  const { status } = req.body;
+
+  db.query(
+    "UPDATE students SET status=? WHERE admission_number=?",
+    [status, req.params.adm],
+    (err) => {
+
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: "Status update failed"
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Status updated"
+      });
+    }
+  );
+});
+
+
+// ================= DELETE STUDENT =================
+app.delete("/student/delete/:adm", (req, res) => {
+
+  db.query(
+    "DELETE FROM students WHERE admission_number=?",
+    [req.params.adm],
+    (err) => {
+
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: "Delete failed"
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Deleted successfully"
+      });
+    }
+  );
+});
 
 
 // ================= TUITION PDF =================
@@ -310,8 +415,22 @@ app.get("/pdf/:adm", (req, res) => {
       const pageWidth = doc.page.width;
       const pageHeight = doc.page.height;
 
-      const joinDate = new Date(u.created_at).toLocaleDateString();
-      const joinTime = new Date(u.created_at).toLocaleTimeString();
+const createdAt = u.created_at
+  ? new Date(u.created_at)
+  : new Date();
+
+// force India timezone format
+const joinDate = createdAt.toLocaleDateString("en-IN", {
+  timeZone: "Asia/Kolkata"
+});
+
+const joinTime = createdAt.toLocaleTimeString("en-IN", {
+  timeZone: "Asia/Kolkata",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true
+});
 
       // ================= LOGOS =================
       const tuitionLogo = path.join(__dirname, "assets", "tuition logo.png");
@@ -421,10 +540,12 @@ app.get("/pdf/:adm", (req, res) => {
     add("Father Name", u.father_name);
     add("Mother Name", u.mother_name);
 
-    add(
-      "Contact",
-      u.contact_details ? u.contact_details.replace(/,/g, "\n") : "-"
-    );
+add(
+  "Contact",
+  u.contact_details
+    ? u.contact_details.split(",").join(" | ")
+    : "-"
+);
 
     add("School", u.school_details);
     add("Address", u.address);
@@ -1391,290 +1512,10 @@ app.listen(PORT, () => {
 
 
 
-// UPDATE
-app.put("/student/update/:adm", (req, res) => {
-  const d = req.body;
-
-  db.query(
-    `UPDATE students SET
-    admission_number=?, name=?, class_group=?, batch=?, medium=?, board=?,
-    school_details=?, father_name=?, mother_name=?, contact_details=?
-    WHERE admission_number=?`,
-    [
-      d.admission_number,
-      d.name,
-      d.class_group,
-      d.batch,
-      d.medium,
-      d.board,
-      d.school_details,
-      d.father_name,
-      d.mother_name,
-      d.contact_details,
-      req.params.adm
-    ],
-    (err) => {
-      if (err) return res.status(500).send("Update failed");
-      res.send("Updated");
-    }
-  );
-});
-
-// STATUS
-app.put("/student/status/:adm", (req, res) => {
-  db.query(
-    "UPDATE students SET status=? WHERE admission_number=?",
-    [req.body.status, req.params.adm],
-    (err) => {
-      if (err) return res.status(500).send("Error");
-      res.send("OK");
-    }
-  );
-});
-
-// DELETE
-app.delete("/student/delete/:adm", (req, res) => {
-  db.query(
-    "DELETE FROM students WHERE admission_number=?",
-    [req.params.adm],
-    (err) => {
-      if (err) return res.status(500).send("Error");
-      res.send("Deleted");
-    }
-  );
-});
 
 
 
 
-
-// ================= ADD TUITION =================
-app.post("/add-tuition", async (req, res) => {
-
-  console.log(req.body); // 🔥 DEBUG
-
-  try {
-    const {
-      admission_number,
-      name,
-      password,
-      batch,
-      class_group,
-      medium,
-      board,
-      father_name,
-      mother_name,
-      contact_details,
-      school_details,
-      status,
-      type
-    } = req.body;
-
-    const hashedPassword = password
-      ? await bcrypt.hash(password, 10)
-      : "";
-
-    db.query(
-      `INSERT INTO students
-      (admission_number,name,password,batch,class_group,medium,board,
-       father_name,mother_name,contact_details,school_details,status,type)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [
-        admission_number,
-        name,
-        hashedPassword,
-        batch,
-        class_group,
-        medium,
-        board,
-        father_name,
-        mother_name,
-        contact_details,
-        school_details,
-        status || "active",
-        type || "tuition"
-      ],
-      (err) => {
-if (err) {
-  console.log("DB ERROR FULL:", err.sqlMessage || err);
-  return res.status(500).send(err.sqlMessage || "DB Error");
-}
-
-        res.send("Added");
-      }
-    );
-  } catch (e) {
-    console.log("CATCH ERROR:", e);
-    res.status(500).send("Server error");
-  }
-});
-
-
-
-
-
-
-// ================= TUITION PDF =================
-app.get("/pdf/:adm", (req, res) => {
-
-  db.query(
-    "SELECT * FROM students WHERE admission_number=?",
-    [req.params.adm],
-    (err, r) => {
-
-      if (err || r.length === 0)
-        return res.status(404).send("Not found");
-
-      const u = r[0];
-
-      const PDFDocument = require("pdfkit");
-      const fs = require("fs");
-      const path = require("path");
-
-      const doc = new PDFDocument({ size: "A4", margin: 0 });
-
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename=${u.admission_number}.pdf`
-      );
-
-      doc.pipe(res);
-
-      const pageWidth = doc.page.width;
-      const pageHeight = doc.page.height;
-
-      const joinDate = new Date(u.created_at).toLocaleDateString();
-      const joinTime = new Date(u.created_at).toLocaleTimeString();
-
-      // ================= LOGOS =================
-      const tuitionLogo = path.join(__dirname, "assets", "tuition logo.png");
-      const associationLogo = path.join(__dirname, "assets", "assos logo.png");
-
-      // ================= 🔥 WATERMARK (ONLY EDUCATION LOGO) =================
-      const watermark = path.join(__dirname, "assets", "education logo.png");
-
-      // ================= BACKGROUND =================
-      doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
-
-      // ================= WATERMARK =================
-      if (fs.existsSync(watermark)) {
-
-        const wmSize = 300; // good visible size
-
-        doc.save();
-        doc.opacity(0.05); // very light watermark
-
-        doc.image(
-          watermark,
-          (pageWidth - wmSize) / 2,
-          (pageHeight - wmSize) / 2,
-          { width: wmSize }
-        );
-
-        doc.restore();
-      }
-
-      // ================= HEADER =================
-      doc.rect(0, 0, pageWidth, 150).fill("#0b3d91");
-
-      // ================= LEFT → TUITION LOGO =================
-      if (fs.existsSync(tuitionLogo)) {
-        doc.image(tuitionLogo, 25, 30, { width: 80 });
-      }
-
-      // ================= RIGHT → ASSOCIATION LOGO =================
-      if (fs.existsSync(associationLogo)) {
-        doc.image(associationLogo, pageWidth - 105, 30, { width: 80 });
-      }
-
-      // ================= HEADER TEXT =================
-      doc.fillColor("white");
-
-      doc.font("Helvetica-Bold")
-        .fontSize(30)
-        .text("Success Tuition Center", 0, 35, {
-          align: "center"
-        });
-
-      doc.font("Helvetica")
-        .fontSize(13)
-        .text("Affiliated with Tamilnadu Tuition Center Association-24250341", 0, 65, {
-          align: "center"
-        });
-
-      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 85, {
-        align: "center"
-      });
-
-
-          doc.text("gmail :  stcrpattanam@gmail.com", 0, 125, {
-        align: "center"
-        
-      });
-
-      doc.text("Cell : 9842927992, 8525927992", 0, 105, {
-        align: "center"
-        
-      });
-
-
-
-      // ================= TITLE =================
-      doc.fillColor("#0b3d91")
-        .font("Helvetica-Bold")
-        .fontSize(14)
-        .text("STUDENT'S INFORMATION", 0, 160, {
-          align: "center"
-        });
-
-      // ================= DATA =================
-      doc.fillColor("#000");
-
-      let y = 200;
-      const xLeft = 80;
-      const gap = 26;
-
-      const add = (label, value) => {
-        doc.fontSize(11)
-          .font("Helvetica")
-          .text(label, xLeft, y);
-
-        doc.font("Helvetica-Bold")
-          .text(value || "-", xLeft + 170, y);
-
-        y += gap;
-      };
-
-      add("Name", u.name);
-      add("Admission No", u.admission_number);
-      add("Class and Group", u.class_group);
-      add("Accademic Year", u.batch);
-      add("Medium", u.medium);
-      add("Board", u.board);
-      add("Father Name", u.father_name);
-      add("Mother Name", u.mother_name);
-      add("Contact", u.contact_details.replace(/,/g, "\n"));
-      add("School", u.school_details);
-      add("Status", u.status);
-      add("Joining Date", joinDate);
-      add("Joining Time", joinTime);
-
-      // ================= SIGNATURE =================
-      const sigY = 690;
-
-      doc.strokeColor("#000");
-
-      doc.moveTo(80, sigY).lineTo(240, sigY).stroke();
-      doc.fontSize(10).text("Chairman's Signature", 85, sigY + 5);
-
-      doc.moveTo(360, sigY).lineTo(520, sigY).stroke();
-      doc.text("Parent's Signature", 370, sigY + 5);
-
-      doc.end();
-    }
-  );
-});
 
 
 
@@ -2082,6 +1923,5 @@ app.get("/computer/:adm", (req, res) => {
     }
   );
 });
-
 
 
