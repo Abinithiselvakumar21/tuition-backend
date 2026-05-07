@@ -1153,13 +1153,20 @@ app.get("/tutorial/pdf/:adm", (req, res) => {
       const pageWidth = doc.page.width;
       const pageHeight = doc.page.height;
 
-      const createdAt = u.created_at ? new Date(u.created_at) : new Date();
+const createdAt = u.created_at
+  ? new Date(u.created_at)
+  : new Date();
 
-const joinDate = createdAt.toLocaleDateString("en-IN");
+const joinDate = createdAt.toLocaleDateString("en-IN", {
+  timeZone: "Asia/Kolkata"
+});
 
 const joinTime = createdAt.toLocaleTimeString("en-IN", {
+  timeZone: "Asia/Kolkata",
   hour: "2-digit",
-  minute: "2-digit"
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true
 });
 
       const watermark = path.join(__dirname, "assets", "education logo.png");
