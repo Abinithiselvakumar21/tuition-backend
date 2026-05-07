@@ -13,7 +13,6 @@ app.use(cors({
   methods: ["GET","POST","PUT","DELETE"],
   allowedHeaders: ["Content-Type"]
 }));
-
 app.use(express.urlencoded({ extended: true }));
 
 
@@ -1045,40 +1044,81 @@ app.put("/tutorial/update/:adm", async (req, res) => {
 
 
 // ================= DELETE =================
-app.delete("/tutorial/delete/:id", (req, res) => {
+app.delete("/tutorial/delete/:adm", (req, res) => {
+
+  const adm = req.params.adm;
+
+  console.log("DELETE REQUEST:", adm);
 
   db.query(
-    "DELETE FROM tutorial_registration WHERE id=?",
-    [req.params.id],
+    "DELETE FROM tutorial_registration WHERE admission_number=?",
+    [adm],
     (err, result) => {
 
       if (err) {
         console.log(err);
-        return res.json({ success:false });
+
+        return res.status(500).json({
+          success:false,
+          message:"Delete failed",
+          error:err
+        });
       }
 
-      res.json({ success:true });
+      console.log("DELETE RESULT:", result);
+
+      if(result.affectedRows === 0){
+        return res.json({
+          success:false,
+          message:"No student found"
+        });
+      }
+
+      res.json({
+        success:true,
+        message:"Student deleted successfully"
+      });
     }
   );
 });
 
 
 // ================= STATUS =================
-app.put("/tutorial/status/:id", (req, res) => {
+app.put("/tutorial/status/:adm", (req, res) => {
 
+  const adm = req.params.adm;
   const { status } = req.body;
 
+  console.log("STATUS REQUEST:", adm, status);
+
   db.query(
-    "UPDATE tutorial_registration SET status=? WHERE id=?",
-    [status, req.params.id],
+    "UPDATE tutorial_registration SET status=? WHERE admission_number=?",
+    [status, adm],
     (err, result) => {
 
       if (err) {
         console.log(err);
-        return res.json({ success:false });
+
+        return res.status(500).json({
+          success:false,
+          message:"Status update failed",
+          error:err
+        });
       }
 
-      res.json({ success:true });
+      console.log("RESULT:", result);
+
+      if(result.affectedRows === 0){
+        return res.json({
+          success:false,
+          message:"No student found"
+        });
+      }
+
+      res.json({
+        success:true,
+        message:"Status updated successfully"
+      });
     }
   );
 });
