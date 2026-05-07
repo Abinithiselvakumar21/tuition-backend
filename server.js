@@ -2111,18 +2111,149 @@ app.post("/register", (req, res) => {
 app.put("/tutorial/status/:adm", (req, res) => {
 
   const { status } = req.body;
+  const adm = req.params.adm;
+
+  console.log("STATUS API HIT");
+  console.log("ADM:", adm);
+  console.log("STATUS:", status);
 
   db.query(
     "UPDATE tutorial_registration SET status=? WHERE admission_number=?",
-    [status, req.params.adm],
-    (err) => {
+    [status, adm],
+    (err, result) => {
 
       if (err) {
-        console.log(err);
-        return res.send("Status update failed ❌");
+        console.log("STATUS ERROR:", err);
+
+        return res.status(500).json({
+          success:false,
+          message:"Status update failed ❌",
+          error:err
+        });
       }
 
-      res.send("Status updated ✅");
+      console.log("STATUS RESULT:", result);
+
+      res.json({
+        success:true,
+        message:"Status updated ✅",
+        result
+      });
+    }
+  );
+});
+
+
+
+// ================= UPDATE STUDENT =================
+app.put("/tutorial/update/:adm", (req, res) => {
+
+  const adm = req.params.adm;
+
+  console.log("UPDATE API HIT");
+  console.log("ADM:", adm);
+  console.log("BODY:", req.body);
+
+  const {
+    name,
+    class_group,
+    subject,
+    batch,
+    medium,
+    board,
+    father_name,
+    mother_name,
+    contact_details,
+    password
+  } = req.body;
+
+  db.query(
+    `UPDATE tutorial_registration
+     SET
+      name=?,
+      class_group=?,
+      subject=?,
+      batch=?,
+      medium=?,
+      board=?,
+      father_name=?,
+      mother_name=?,
+      contact_details=?,
+      password=?
+     WHERE admission_number=?`,
+
+    [
+      name,
+      class_group,
+      subject,
+      batch,
+      medium,
+      board,
+      father_name,
+      mother_name,
+      contact_details,
+      password,
+      adm
+    ],
+
+    (err, result) => {
+
+      if (err) {
+
+        console.log("UPDATE ERROR:", err);
+
+        return res.status(500).json({
+          success:false,
+          message:"Update failed ❌",
+          error:err
+        });
+      }
+
+      console.log("UPDATE RESULT:", result);
+
+      res.json({
+        success:true,
+        message:"Student updated successfully ✅",
+        result
+      });
+    }
+  );
+});
+
+
+
+// ================= DELETE =================
+app.delete("/tutorial/delete/:adm", (req, res) => {
+
+  const adm = req.params.adm;
+
+  console.log("DELETE API HIT");
+  console.log("ADM:", adm);
+
+  db.query(
+    "DELETE FROM tutorial_registration WHERE admission_number=?",
+    [adm],
+
+    (err, result) => {
+
+      if (err) {
+
+        console.log("DELETE ERROR:", err);
+
+        return res.status(500).json({
+          success:false,
+          message:"Delete failed ❌",
+          error:err
+        });
+      }
+
+      console.log("DELETE RESULT:", result);
+
+      res.json({
+        success:true,
+        message:"Student deleted successfully ✅",
+        result
+      });
     }
   );
 });
