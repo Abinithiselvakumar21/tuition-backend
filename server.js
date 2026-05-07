@@ -1153,8 +1153,14 @@ app.get("/tutorial/pdf/:adm", (req, res) => {
       const pageWidth = doc.page.width;
       const pageHeight = doc.page.height;
 
-      const joinDate = new Date(u.created_at).toLocaleDateString();
-      const joinTime = new Date(u.created_at).toLocaleTimeString();
+      const createdAt = u.created_at ? new Date(u.created_at) : new Date();
+
+const joinDate = createdAt.toLocaleDateString("en-IN");
+
+const joinTime = createdAt.toLocaleTimeString("en-IN", {
+  hour: "2-digit",
+  minute: "2-digit"
+});
 
       const watermark = path.join(__dirname, "assets", "education logo.png");
 
@@ -1262,7 +1268,7 @@ app.get("/tutorial/pdf/:adm", (req, res) => {
       add("Board", u.board);
       add("Father Name", u.father_name);
       add("Mother Name", u.mother_name);
-      add("Contact", u.contact_details.replace(/,/g, "\n"));
+      add("Contact", (u.contact_details || "").split(",").join("  |  "));
       add("Status", u.status);
       add("Joining Date", joinDate);
       add("Joining Time", joinTime);
