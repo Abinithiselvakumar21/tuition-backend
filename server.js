@@ -80,16 +80,20 @@ app.post("/login", (req, res) => {
   };
 
   // TUITION
-  db.query(
-    "SELECT * FROM tuition_students WHERE admission_number=?",
-    [admission_number],
-    async (err, result) => {
+db.query(
+  "SELECT * FROM students WHERE admission_number=?",
+  [admission_number],
+  async (err, result) => {
 
-      if (err) return res.status(500).send("Server error");
+    if (err) {
+      console.log(err);
+      return res.status(500).send("Server error");
+    }
 
-      if (result.length > 0) {
-        return handleUser(result[0], "tuition");
-      }
+    if (result.length > 0) {
+      return handleUser(result[0], "tuition");
+    }
+
 
       // COMPUTER
       db.query(
