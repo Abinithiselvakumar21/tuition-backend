@@ -185,13 +185,14 @@ app.post("/add-student", async (req, res) => {
       type || "student"
     ], (err) => {
 
-      if (err) {
-        console.log(err);
-        return res.status(500).json({
-          success: false,
-          message: "Add failed"
-        });
-      }
+     if (err) {
+  console.log("DB ERROR:", err.sqlMessage || err);
+
+  return res.status(500).json({
+    success: false,
+    message: err.sqlMessage || err.message
+  });
+}
 
       res.json({
         success: true,
