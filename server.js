@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 const db = mysql.createPool({
-  host: "srv843.hstgr.io",
+    host: "82.25.121.156",
   user: "u987008906_abinithi",
   password: "Abilogin@21",
   database: "u987008906_tuition_db",
