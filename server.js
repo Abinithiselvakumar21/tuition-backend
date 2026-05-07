@@ -148,6 +148,7 @@ app.post("/add-student", async (req, res) => {
       type
     } = req.body;
 
+    // ================= VALIDATION =================
     if (!admission_number || !name) {
       return res.status(400).json({
         success: false,
@@ -155,53 +156,103 @@ app.post("/add-student", async (req, res) => {
       });
     }
 
-    let hashedPassword = null;
+    // ================= CHECK DUPLICATE =================
+    db.query(
+      "SELECT * FROM students WHERE admission_number=?",
+      [admission_number],
+      async (checkErr, checkResult) => {
 
-    if (password && password.trim() !== "") {
-      hashedPassword = await bcrypt.hash(password, 10);
-    }
+        if (checkErr) {
+          console.log("CHECK ERROR:", checkErr);
 
-    const sql = `
-      INSERT INTO students
-      (admission_number, name, password, batch, class_group, medium, board,
-       father_name, mother_name, contact_details, school_details, address, status, type)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+          return res.status(500).json({
+            success: false,
+            message: "Database check failed"
+          });
+        }
 
-    db.query(sql, [
-      admission_number,
-      name,
-      hashedPassword,
-      batch || null,
-      class_group || null,
-      medium || null,
-      board || null,
-      father_name || null,
-      mother_name || null,
-      contact_details || null,
-      school_details || null,
-      address || null,
-      status || "active",
-      type || "student"
-    ], (err) => {
+        // 🔥 already exists
+        if (checkResult.length > 0) {
+          return res.status(400).json({
+            success: false,
+            message: "Admission number already exists"
+          });
+        }
 
-     if (err) {
-  console.log("DB ERROR:", err.sqlMessage || err);
+        // ================= PASSWORD HASH =================
+        let hashedPassword = null;
 
-  return res.status(500).json({
-    success: false,
-    message: err.sqlMessage || err.message
-  });
-}
+        if (password && password.trim() !== "") {
+          hashedPassword = await bcrypt.hash(password, 10);
+        }
 
-      res.json({
-        success: true,
-        message: "Student added successfully"
-      });
-    });
+        // ================= INSERT =================
+        const sql = `
+          INSERT INTO students
+          (
+            admission_number,
+            name,
+            password,
+            batch,
+            class_group,
+            medium,
+            board,
+            father_name,
+            mother_name,
+            contact_details,
+            school_details,
+            address,
+            status,
+            type
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        db.query(
+          sql,
+          [
+            admission_number,
+            name,
+            hashedPassword,
+            batch || null,
+            class_group || null,
+            medium || null,
+            board || null,
+            father_name || null,
+            mother_name || null,
+            contact_details || null,
+            school_details || null,
+            address || null,
+            status || "active",
+            type || "student"
+          ],
+          (err, result) => {
+
+            if (err) {
+
+              console.log("INSERT ERROR:", err);
+
+              return res.status(500).json({
+                success: false,
+                message: err.sqlMessage || "Add failed"
+              });
+            }
+
+            res.json({
+              success: true,
+              message: "Student added successfully",
+              id: result.insertId
+            });
+          }
+        );
+
+      }
+    );
 
   } catch (e) {
-    console.log(e);
+
+    console.log("SERVER ERROR:", e);
+
     res.status(500).json({
       success: false,
       message: "Server error"
