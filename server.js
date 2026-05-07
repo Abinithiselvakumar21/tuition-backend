@@ -7,9 +7,11 @@ const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
 app.use(express.json());
+
 app.use(cors({
-  origin: "*",   // allow all (for now)
-  methods: ["GET","POST"]
+  origin: "*",
+  methods: ["GET","POST","PUT","DELETE"],
+  allowedHeaders: ["Content-Type"]
 }));
 
 app.use(express.urlencoded({ extended: true }));
