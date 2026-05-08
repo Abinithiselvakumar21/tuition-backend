@@ -534,13 +534,13 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
 
       doc.font("Helvetica-Bold")
         .fontSize(30)
-        .text("Success Tuition Center", 0, 35, {
+        .text("Success Tuition Centre", 0, 35, {
           align: "center"
         });
 
       doc.font("Helvetica")
         .fontSize(13)
-        .text("Affiliated with Tamilnadu Tuition Center Association-24250341", 0, 65, {
+        .text("Affiliated with Tamilnadu Tuition Centre Association-24250341", 0, 65, {
           align: "center"
         });
 
@@ -630,75 +630,6 @@ add(
 
 
 
-// ================= 🔥 ADD COMPUTER (FIXED VERSION) =================
-app.post("/add-computer", async (req, res) => {
-
-  try {
-    const {
-      admission_number,
-      name,
-      password,
-      batch,
-      class_group,
-      medium,
-      board,
-      father_name,
-      contact_details,
-      school_details,
-      duration,
-      exam_date,
-      valid_upto,
-      address,
-      status
-    } = req.body;
-
-    // 🔴 validation
-    if (!admission_number || !password) {
-      return res.status(400).send("Admission number & password required");
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    db.query(
-      `INSERT INTO computer_students
-      (admission_number,name,password,batch,class_group,medium,board,
-       father_name,contact_details,school_details,
-       duration,exam_date,valid_upto,address,status)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-
-      [
-        admission_number,
-        name || "",
-        hashedPassword,
-        batch || "",
-        class_group || "",
-        medium || "",
-        board || "",
-        father_name || "",
-        contact_details || "",
-        school_details || "",
-        duration || "",
-        exam_date || null,
-        valid_upto || null,
-        address || "",
-        status || "active"
-      ],
-
-      (err) => {
-        if (err) {
-          console.log("DB ERROR:", err.sqlMessage || err);
-          return res.status(500).send(err.sqlMessage);
-        }
-        res.send("Computer Added");
-      }
-    );
-
-  } catch (e) {
-    console.log("SERVER ERROR:", e);
-    res.status(500).send("Server error");
-  }
-});
-
 
 // ================= 🔥 GET TUITION =================
 app.get("/students", (req, res) => {
@@ -720,34 +651,66 @@ app.get("/students", (req, res) => {
 });
 
 
-// ================= 🔥 GET ALL COMPUTER =================
+
+
+
+// ================= GET ALL COMPUTER =================
 app.get("/computer-students", (req, res) => {
-  db.query("SELECT * FROM computer_students ORDER BY id ASC", (err, r) => {
-    if (err) return res.status(500).send("Error");
 
-    const data = r.map(s => {
-      const d = new Date(s.created_at);
+  db.query(
+    "SELECT * FROM computer_students ORDER BY id ASC",
+    (err, r) => {
 
-      return {
-        ...s,
-        joining_date: d.toLocaleDateString(),
-        joining_time: d.toLocaleTimeString()
-      };
-    });
+      if (err) {
+        console.log(err);
 
-    res.json(data);
-  });
+        return res.status(500).json({
+          success: false,
+          message: "Fetch failed"
+        });
+      }
+
+      const data = r.map(s => {
+
+        const d = new Date(s.created_at);
+
+        return {
+          ...s,
+          joining_date: d.toLocaleDateString(),
+          joining_time: d.toLocaleTimeString()
+        };
+      });
+
+      res.json(data);
+    }
+  );
 });
 
 
-// ================= 🔥 GET SINGLE COMPUTER =================
+// ================= GET SINGLE COMPUTER =================
 app.get("/computer/:adm", (req, res) => {
+
   db.query(
     "SELECT * FROM computer_students WHERE admission_number=?",
     [req.params.adm],
     (err, r) => {
-      if (err || r.length === 0)
-        return res.status(404).send("Not found");
+
+      if (err) {
+        console.log(err);
+
+        return res.status(500).json({
+          success: false,
+          message: "Fetch failed"
+        });
+      }
+
+      if (r.length === 0) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Student not found"
+        });
+      }
 
       res.json(r[0]);
     }
@@ -755,7 +718,7 @@ app.get("/computer/:adm", (req, res) => {
 });
 
 
-// ================= 🔥 UPDATE COMPUTER (REMOVED mother_name) =================
+// ================= UPDATE COMPUTER =================
 app.put("/computer/update/:adm", (req, res) => {
 
   const adm = req.params.adm;
@@ -765,8 +728,22 @@ app.put("/computer/update/:adm", (req, res) => {
     [adm],
     (err, result) => {
 
-      if (err || result.length === 0)
-        return res.status(500).send("Fetch failed");
+      if (err) {
+        console.log(err);
+
+        return res.status(500).json({
+          success: false,
+          message: "Fetch failed"
+        });
+      }
+
+      if (result.length === 0) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Student not found"
+        });
+      }
 
       const old = result[0];
       const d = req.body;
@@ -781,8 +758,6 @@ app.put("/computer/update/:adm", (req, res) => {
         school_details: d.school_details || old.school_details,
         father_name: d.father_name || old.father_name,
         contact_details: d.contact_details || old.contact_details,
-
-        // NEW FIELDS (added support)
         duration: d.duration || old.duration,
         valid_upto: d.valid_upto || old.valid_upto,
         exam_date: d.exam_date || old.exam_date,
@@ -804,7 +779,8 @@ app.put("/computer/update/:adm", (req, res) => {
           valid_upto=?,
           exam_date=?,
           address=?
-        WHERE admission_number=?`,
+         WHERE admission_number=?`,
+
         [
           updated.admission_number,
           updated.name,
@@ -821,9 +797,22 @@ app.put("/computer/update/:adm", (req, res) => {
           updated.address,
           adm
         ],
+
         (err2) => {
-          if (err2) return res.status(500).send("Update failed");
-          res.send("Updated");
+
+          if (err2) {
+            console.log(err2);
+
+            return res.status(500).json({
+              success: false,
+              message: "Update failed"
+            });
+          }
+
+          res.json({
+            success: true,
+            message: "Updated successfully"
+          });
         }
       );
     }
@@ -831,30 +820,57 @@ app.put("/computer/update/:adm", (req, res) => {
 });
 
 
-// ================= 🔥 STATUS =================
+// ================= STATUS UPDATE =================
 app.put("/computer/status/:adm", (req, res) => {
+
   db.query(
     "UPDATE computer_students SET status=? WHERE admission_number=?",
     [req.body.status, req.params.adm],
-    (err) => {
-      if (err) return res.status(500).send("Error");
-      res.send("OK");
+    (err, result) => {
+
+      if (err) {
+        console.log(err);
+
+        return res.status(500).json({
+          success: false,
+          message: "Status update failed"
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Status updated successfully"
+      });
     }
   );
 });
 
 
-// ================= 🔥 DELETE =================
+// ================= DELETE COMPUTER =================
 app.delete("/computer/delete/:adm", (req, res) => {
+
   db.query(
     "DELETE FROM computer_students WHERE admission_number=?",
     [req.params.adm],
-    (err) => {
-      if (err) return res.status(500).send("Error");
-      res.send("Deleted");
+    (err, result) => {
+
+      if (err) {
+        console.log(err);
+
+        return res.status(500).json({
+          success: false,
+          message: "Delete failed"
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Deleted successfully"
+      });
     }
   );
 });
+
 
 
 // ================= 🔥 COMPUTER PDF (FINAL CLEAN + WATERMARK) =================
@@ -899,8 +915,22 @@ app.get("/computer/pdf/:adm", (req, res) => {
         return `${day}-${month}-${year} (${weekday})`;
       };
 
-      const joinDate = new Date(u.created_at).toLocaleDateString();
-      const joinTime = new Date(u.created_at).toLocaleTimeString();
+const createdAt = u.created_at
+  ? new Date(u.created_at)
+  : new Date();
+
+// force India timezone format
+const joinDate = createdAt.toLocaleDateString("en-IN", {
+  timeZone: "Asia/Kolkata"
+});
+
+const joinTime = createdAt.toLocaleTimeString("en-IN", {
+  timeZone: "Asia/Kolkata",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true
+});
 
       // ================= FILES =================
       const educationLogo = path.join(__dirname, "assets", "education logo.png");
@@ -942,7 +972,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
       doc.fillColor("white")
         .font("Helvetica-Bold")
         .fontSize(20)
-        .text("SUCCESS COMPUTER CENTER", 0, 25, {
+        .text("SUCCESS COMPUTER CENTRE", 0, 25, {
           align: "center"
         });
 
@@ -993,7 +1023,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
       
       add("Medium", u.medium);
       add("Board", u.board);
-      add("Contact", u.contact_details.replace(/,/g, "\n"));
+     add("Contact", (u.contact_details || "").split(",").join("  |  "));
 
       add("Duration", u.duration);
       add("Valid Upto Date", formatDate(u.valid_upto));
@@ -1015,22 +1045,6 @@ app.get("/computer/pdf/:adm", (req, res) => {
       doc.text("Parent's Signature", 360, sigY + 10);
 
       doc.end();
-    }
-  );
-});
-
-
-
-// ================= COMPUTER GET ALL (SAFE AGAIN) =================
-app.get("/computer/:adm", (req, res) => {
-  db.query(
-    "SELECT * FROM computer_students WHERE admission_number=?",
-    [req.params.adm],
-    (err, r) => {
-      if (err || r.length === 0)
-        return res.status(404).send("Not found");
-
-      res.json(r[0]);
     }
   );
 });
@@ -1389,14 +1403,14 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
 
       doc.font("Helvetica-Bold")
         .fontSize(20)
-        .text("Success Tutorial Center", 0, 35, {
+        .text("Success Tutorial Centre", 0, 35, {
           align: "center"
         });
 
       doc.font("Helvetica")
         .fontSize(13)
         .text(
-          "Affiliated with Tamilnadu Tutorial Center Association-24250341",
+          "Affiliated with Tamilnadu Tutorial Centre Association-24250341",
           0,
           60,
           { align: "center" }
@@ -1563,421 +1577,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-// ================= 🔥 ADD COMPUTER (FIXED VERSION) =================
-app.post("/add-computer", async (req, res) => {
-
-  try {
-    const {
-      admission_number,
-      name,
-      password,
-      batch,
-      class_group,
-      medium,
-      board,
-      father_name,
-      contact_details,
-      school_details,
-      duration,
-      exam_date,
-      valid_upto,
-      address,
-      status
-    } = req.body;
-
-    // 🔴 validation
-    if (!admission_number || !password) {
-      return res.status(400).send("Admission number & password required");
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    db.query(
-      `INSERT INTO computer_students
-      (admission_number,name,password,batch,class_group,medium,board,
-       father_name,contact_details,school_details,
-       duration,exam_date,valid_upto,address,status)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-
-      [
-        admission_number,
-        name || "",
-        hashedPassword,
-        batch || "",
-        class_group || "",
-        medium || "",
-        board || "",
-        father_name || "",
-        contact_details || "",
-        school_details || "",
-        duration || "",
-        exam_date || null,
-        valid_upto || null,
-        address || "",
-        status || "active"
-      ],
-
-      (err) => {
-        if (err) {
-          console.log("DB ERROR:", err.sqlMessage || err);
-          return res.status(500).send(err.sqlMessage);
-        }
-        res.send("Computer Added");
-      }
-    );
-
-  } catch (e) {
-    console.log("SERVER ERROR:", e);
-    res.status(500).send("Server error");
-  }
-});
-
-
-// ================= 🔥 GET TUITION =================
-app.get("/students", (req, res) => {
-  db.query("SELECT * FROM students ORDER BY id ASC", (err, r) => {
-    if (err) return res.status(500).send("Error");
-
-    const data = r.map(s => {
-      const d = new Date(s.created_at);
-
-      return {
-        ...s,
-        joining_date: d.toLocaleDateString(),
-        joining_time: d.toLocaleTimeString()
-      };
-    });
-
-    res.json(data);
-  });
-});
-
-
-// ================= 🔥 GET ALL COMPUTER =================
-app.get("/computer-students", (req, res) => {
-  db.query("SELECT * FROM computer_students ORDER BY id ASC", (err, r) => {
-    if (err) return res.status(500).send("Error");
-
-    const data = r.map(s => {
-      const d = new Date(s.created_at);
-
-      return {
-        ...s,
-        joining_date: d.toLocaleDateString(),
-        joining_time: d.toLocaleTimeString()
-      };
-    });
-
-    res.json(data);
-  });
-});
-
-
-// ================= 🔥 GET SINGLE COMPUTER =================
-app.get("/computer/:adm", (req, res) => {
-  db.query(
-    "SELECT * FROM computer_students WHERE admission_number=?",
-    [req.params.adm],
-    (err, r) => {
-      if (err || r.length === 0)
-        return res.status(404).send("Not found");
-
-      res.json(r[0]);
-    }
-  );
-});
-
-
-// ================= 🔥 UPDATE COMPUTER (REMOVED mother_name) =================
-app.put("/computer/update/:adm", (req, res) => {
-
-  const adm = req.params.adm;
-
-  db.query(
-    "SELECT * FROM computer_students WHERE admission_number=?",
-    [adm],
-    (err, result) => {
-
-      if (err || result.length === 0)
-        return res.status(500).send("Fetch failed");
-
-      const old = result[0];
-      const d = req.body;
-
-      const updated = {
-        admission_number: d.admission_number || old.admission_number,
-        name: d.name || old.name,
-        class_group: d.class_group || old.class_group,
-        batch: d.batch || old.batch,
-        medium: d.medium || old.medium,
-        board: d.board || old.board,
-        school_details: d.school_details || old.school_details,
-        father_name: d.father_name || old.father_name,
-        contact_details: d.contact_details || old.contact_details,
-
-        // NEW FIELDS (added support)
-        duration: d.duration || old.duration,
-        valid_upto: d.valid_upto || old.valid_upto,
-        exam_date: d.exam_date || old.exam_date,
-        address: d.address || old.address
-      };
-
-      db.query(
-        `UPDATE computer_students SET
-          admission_number=?,
-          name=?,
-          class_group=?,
-          batch=?,
-          medium=?,
-          board=?,
-          school_details=?,
-          father_name=?,
-          contact_details=?,
-          duration=?,
-          valid_upto=?,
-          exam_date=?,
-          address=?
-        WHERE admission_number=?`,
-        [
-          updated.admission_number,
-          updated.name,
-          updated.class_group,
-          updated.batch,
-          updated.medium,
-          updated.board,
-          updated.school_details,
-          updated.father_name,
-          updated.contact_details,
-          updated.duration,
-          updated.valid_upto,
-          updated.exam_date,
-          updated.address,
-          adm
-        ],
-        (err2) => {
-          if (err2) return res.status(500).send("Update failed");
-          res.send("Updated");
-        }
-      );
-    }
-  );
-});
-
-
-// ================= 🔥 STATUS =================
-app.put("/computer/status/:adm", (req, res) => {
-  db.query(
-    "UPDATE computer_students SET status=? WHERE admission_number=?",
-    [req.body.status, req.params.adm],
-    (err) => {
-      if (err) return res.status(500).send("Error");
-      res.send("OK");
-    }
-  );
-});
-
-
-// ================= 🔥 DELETE =================
-app.delete("/computer/delete/:adm", (req, res) => {
-  db.query(
-    "DELETE FROM computer_students WHERE admission_number=?",
-    [req.params.adm],
-    (err) => {
-      if (err) return res.status(500).send("Error");
-      res.send("Deleted");
-    }
-  );
-});
-
-
-// ================= 🔥 COMPUTER PDF (FINAL CLEAN + WATERMARK) =================
-app.get("/computer/pdf/:adm", (req, res) => {
-
-  db.query(
-    "SELECT * FROM computer_students WHERE admission_number=?",
-    [req.params.adm],
-    (err, r) => {
-
-      if (err || r.length === 0)
-        return res.status(404).send("Not found");
-
-      const u = r[0];
-
-      const doc = new PDFDocument({ size: "A4", margin: 0 });
-
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename=${u.admission_number}.pdf`
-      );
-
-      doc.pipe(res);
-
-      const pageWidth = doc.page.width;
-      const pageHeight = doc.page.height;
-
-      // ================= DATE FORMAT FIX =================
-      const formatDate = (d) => {
-        if (!d) return "-";
-
-        const date = new Date(d);
-        if (isNaN(date)) return "-";
-
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-
-        const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
-
-        return `${day}-${month}-${year} (${weekday})`;
-      };
-
-      const joinDate = new Date(u.created_at).toLocaleDateString();
-      const joinTime = new Date(u.created_at).toLocaleTimeString();
-
-      // ================= FILES =================
-      const educationLogo = path.join(__dirname, "assets", "education logo.png");
-      const computerLogo = path.join(__dirname, "assets", "computer logo.png");
-      const associationLogo = path.join(__dirname, "assets", "assos logo.png");
-
-      // ================= BACKGROUND =================
-      doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
-      doc.rect(0, 0, pageWidth, 120).fill("#0b3d91");
-
-      // ================= WATERMARK =================
-      if (fs.existsSync(educationLogo)) {
-
-        const wmSize = 300;
-
-        doc.save();
-        doc.opacity(0.05);
-
-        doc.image(
-          educationLogo,
-          (pageWidth - wmSize) / 2,
-          (pageHeight - wmSize) / 2,
-          { width: wmSize }
-        );
-
-        doc.restore();
-      }
-
-      // ================= HEADER LOGOS =================
-      if (fs.existsSync(computerLogo)) {
-        doc.image(computerLogo, 20, 20, { width: 85 });
-      }
-
-      if (fs.existsSync(associationLogo)) {
-        doc.image(associationLogo, pageWidth - 105, 20, { width: 85 });
-      }
-
-      // ================= HEADER TEXT =================
-      doc.fillColor("white")
-        .font("Helvetica-Bold")
-        .fontSize(20)
-        .text("SUCCESS COMPUTER CENTER", 0, 25, {
-          align: "center"
-        });
-
-      doc.fontSize(13)
-        .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 55, {
-          align: "center"
-        });
-
-      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 70, {
-        align: "center"
-      });
-
-      doc.text("gmail : sccrpattanam@gmail.com", 0, 85, {
-        align: "center"
-      });
-
-      doc.text("Cell : 9842927992, 8525927992", 0, 150, {
-        align: "center"
-      });
-
-      // ================= TITLE =================
-      doc.fillColor("#0b3d91")
-        .font("Helvetica-Bold")
-        .fontSize(14)
-        .text("STUDENT'S INFORMATION", 0, 125, {
-          align: "center"
-        });
-
-      // ================= DATA =================
-      doc.fillColor("#000");
-
-      let x = 100;
-      let y = 200;
-      const gap = 28;
-
-      const add = (label, value) => {
-        doc.font("Helvetica")
-          .fontSize(12)
-          .text(`${label}: ${value || "-"}`, x, y);
-
-        y += gap;
-      };
-
-      add("Name", u.name);
-      add("Admission No", u.admission_number);
-      add("Accademic year", u.batch);
-      add("Course", u.class_group);
-      
-      add("Medium", u.medium);
-      add("Board", u.board);
-      add("Contact", u.contact_details.replace(/,/g, "\n"));
-
-      add("Duration", u.duration);
-      add("Valid Upto Date", formatDate(u.valid_upto));
-      add("Exam Date", formatDate(u.exam_date));
-      
-      add("Address", u.address);
-
-      add("Status", u.status);
-      add("Joining Date", joinDate);
-      add("Joining Time", joinTime);
-
-      // ================= SIGNATURE =================
-      const sigY = 710;
-
-      doc.moveTo(120, sigY).lineTo(260, sigY).stroke();
-      doc.fontSize(11).text("Chairman's Signature", 110, sigY + 10);
-
-      doc.moveTo(350, sigY).lineTo(490, sigY).stroke();
-      doc.text("Parent's Signature", 360, sigY + 10);
-
-      doc.end();
-    }
-  );
-});
-
-
-
-// ================= COMPUTER GET ALL (SAFE AGAIN) =================
-app.get("/computer/:adm", (req, res) => {
-  db.query(
-    "SELECT * FROM computer_students WHERE admission_number=?",
-    [req.params.adm],
-    (err, r) => {
-      if (err || r.length === 0)
-        return res.status(404).send("Not found");
-
-      res.json(r[0]);
-    }
-  );
-});
-
-
