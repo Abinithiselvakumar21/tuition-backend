@@ -1056,7 +1056,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
         align: "center"
       });
 
-      doc.text("Cell : 9842927992, 8525927992", 0, 150, {
+      doc.text("Cell : 9842927992, 8525927992", 0, 100, {
         align: "center"
       });
 
