@@ -496,7 +496,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       const watermark = path.join(__dirname, "assets", "education logo.png");
 
       // ================= BACKGROUND =================
-      doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
+      doc.rect(0, 0, pageWidth, pageHeight).fill("#0b3d91");
 
       // ================= WATERMARK =================
       if (fs.existsSync(watermark)) {
@@ -517,7 +517,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       }
 
       // ================= HEADER =================
-      doc.rect(0, 0, pageWidth, 150).fill("#fff");
+      doc.rect(0, 0, pageWidth, 150).fill("#0b3d91");
 
       // ================= LEFT → TUITION LOGO =================
       if (fs.existsSync(tuitionLogo)) {
