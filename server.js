@@ -496,7 +496,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       const watermark = path.join(__dirname, "assets", "education logo.png");
 
       // ================= BACKGROUND =================
-      doc.rect(0, 0, pageWidth, pageHeight).fill("#fff");
+      doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
 
       // ================= WATERMARK =================
       if (fs.existsSync(watermark)) {
@@ -1141,6 +1141,7 @@ app.post("/register", async (req, res) => {
     if (!admission_number || !password || !name) {
       return res.send("Required fields missing");
     }
+    
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
