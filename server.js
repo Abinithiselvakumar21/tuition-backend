@@ -628,7 +628,74 @@ add(
   );
 });
 
+// ================= 🔥 ADD COMPUTER (FIXED VERSION) =================
+app.post("/add-computer", async (req, res) => {
 
+  try {
+    const {
+      admission_number,
+      name,
+      password,
+      batch,
+      class_group,
+      medium,
+      board,
+      father_name,
+      contact_details,
+      school_details,
+      duration,
+      exam_date,
+      valid_upto,
+      address,
+      status
+    } = req.body;
+
+    // 🔴 validation
+    if (!admission_number || !password) {
+      return res.status(400).send("Admission number & password required");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    db.query(
+      `INSERT INTO computer_students
+      (admission_number,name,password,batch,class_group,medium,board,
+       father_name,contact_details,school_details,
+       duration,exam_date,valid_upto,address,status)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+
+      [
+        admission_number,
+        name || "",
+        hashedPassword,
+        batch || "",
+        class_group || "",
+        medium || "",
+        board || "",
+        father_name || "",
+        contact_details || "",
+        school_details || "",
+        duration || "",
+        exam_date || null,
+        valid_upto || null,
+        address || "",
+        status || "active"
+      ],
+
+      (err) => {
+        if (err) {
+          console.log("DB ERROR:", err.sqlMessage || err);
+          return res.status(500).send(err.sqlMessage);
+        }
+        res.send("Computer Added");
+      }
+    );
+
+  } catch (e) {
+    console.log("SERVER ERROR:", e);
+    res.status(500).send("Server error");
+  }
+});
 
 
 // ================= 🔥 GET TUITION =================
