@@ -724,7 +724,9 @@ app.post("/add-computer", async (req, res) => {
       medium,
       board,
       father_name,
+      father_occupation,
       contact_details,
+      transport,
       school_details,
       duration,
       exam_date,
@@ -742,10 +744,24 @@ app.post("/add-computer", async (req, res) => {
 
     db.query(
       `INSERT INTO computer_students
-      (admission_number,name,password,batch,class_group,medium,board,
-       father_name,contact_details,school_details,
-       duration,exam_date,valid_upto,address,status)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      (admission_number,
+      name,
+      password,
+      batch,
+      class_group,
+      medium,
+      board,
+       father_name,
+       father_occupation,
+       contact_details,
+       transport,
+       school_details,
+       duration,
+       exam_date,
+       valid_upto,
+       address,
+       status)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 
       [
         admission_number,
@@ -756,7 +772,9 @@ app.post("/add-computer", async (req, res) => {
         medium || "",
         board || "",
         father_name || "",
+        father_occupation || "",
         contact_details || "",
+        transport || "",
         school_details || "",
         duration || "",
         exam_date || null,
@@ -905,9 +923,11 @@ app.put("/computer/update/:adm", (req, res) => {
         batch: d.batch || old.batch,
         medium: d.medium || old.medium,
         board: d.board || old.board,
-        school_details: d.school_details || old.school_details,
         father_name: d.father_name || old.father_name,
+        father_occupation: d.father_occupation || old.father_occupation,
         contact_details: d.contact_details || old.contact_details,
+        transport: d.transport || old.transport,
+        school_details: d.school_details || old.school_details,
         duration: d.duration || old.duration,
         valid_upto: d.valid_upto || old.valid_upto,
         exam_date: d.exam_date || old.exam_date,
@@ -922,9 +942,11 @@ app.put("/computer/update/:adm", (req, res) => {
           batch=?,
           medium=?,
           board=?,
-          school_details=?,
           father_name=?,
+          father_occupation=?,
           contact_details=?,
+          transport=?,
+          school_details=?,
           duration=?,
           valid_upto=?,
           exam_date=?,
@@ -938,9 +960,11 @@ app.put("/computer/update/:adm", (req, res) => {
           updated.batch,
           updated.medium,
           updated.board,
-          updated.school_details,
           updated.father_name,
+          updated.father_occupation,
           updated.contact_details,
+          updated.transport,
+          updated.school_details,
           updated.duration,
           updated.valid_upto,
           updated.exam_date,
@@ -1173,14 +1197,16 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       
       add("Medium", u.medium);
       add("Board", u.board);
+       add("Father Name", u.father_name);
+        add("Father Occupation", u.father_occupation);
      add("Contact", (u.contact_details || "").split(",").join("  |  "));
-
-      add("Duration", u.duration);
+      add("Transport", u.transport);
+       add("Name of the School/College", u.school_details);
+     add("Duration", u.duration);
       add("Valid Upto Date", formatDate(u.valid_upto));
       add("Exam Date", formatDate(u.exam_date));
       
       add("Address", u.address);
-
       add("Status", u.status);
       add("Joining Date", joinDate);
       add("Joining Time", joinTime);
