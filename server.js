@@ -1213,39 +1213,28 @@ app.get("/computer/pdf/:adm", (req, res) => {
       add("Joining Time", joinTime);
 
       // ================= SIGNATURE (CENTER FIXED) =================
-const sigY = 750;
+      const sigY = 750;
+      const lineWidth = 150;
+      const center = pageWidth / 2;
+      const gapSig = 120;
 
-const lineWidth = 150;
+      const drawSignature = (label, x) => {
 
-// 👉 shift whole block to right side
-const startX = pageWidth - 400; // adjust this value to move right/left
-const gap = 200;
+        doc.moveTo(x, sigY)
+          .lineTo(x + lineWidth, sigY)
+          .stroke();
 
-// ================= CHAIRMAN =================
-doc.moveTo(startX, sigY)
-  .lineTo(startX + lineWidth, sigY)
-  .stroke();
+        doc.fontSize(11)
+          .text(label, x, sigY + 10, {
+            width: lineWidth,
+            align: "center"
+          });
+      };
 
-doc.fontSize(11)
-  .text("Chairman's Signature", startX, sigY + 10, {
-    width: lineWidth,
-    align: "center"
-  });
+      drawSignature("Chairman's Signature", center - gapSig - lineWidth);
+      drawSignature("Parent's Signature", center + gapSig - lineWidth);
 
-// ================= PARENT =================
-const rightX = startX + gap;
-
-doc.moveTo(rightX, sigY)
-  .lineTo(rightX + lineWidth, sigY)
-  .stroke();
-
-doc.fontSize(11)
-  .text("Parent's Signature", rightX, sigY + 10, {
-    width: lineWidth,
-    align: "center"
-  });
-
-doc.end();
+      doc.end();
     }
   );
 });
