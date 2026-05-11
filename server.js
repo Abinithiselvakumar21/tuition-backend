@@ -517,7 +517,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       }
 
       // ================= HEADER =================
-      doc.rect(0, 0, pageWidth, 150).fill("#0b3d91");
+      doc.rect(0, 0, pageWidth, 150).fill("#fff");
 
       // ================= LEFT → TUITION LOGO =================
       if (fs.existsSync(tuitionLogo)) {
@@ -530,7 +530,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       }
 
       // ================= HEADER TEXT =================
-      doc.fillColor("white");
+      doc.fillColor("#0b3d91");
 
       doc.font("Helvetica-Bold")
         .fontSize(30)
