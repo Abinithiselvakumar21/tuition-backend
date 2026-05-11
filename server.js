@@ -520,7 +520,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       doc.rect(0, 0, pageWidth, 150).fill("#fff");
 
       // ================= HEADER BOX DESIGN =================
-doc.roundedRect(15, 9, pageWidth - 30, 145, 12)
+doc.roundedRect(15, 8, pageWidth - 30, 145, 12)
    .lineWidth(3)
    .strokeColor("#0b3d91")
    .stroke();
@@ -582,16 +582,27 @@ doc.roundedRect(15, 9, pageWidth - 30, 145, 12)
       const xLeft = 80;
       const gap = 26;
 
-      const add = (label, value) => {
-        doc.fontSize(11)
-          .font("Helvetica")
-          .text(label, xLeft, y);
+const add = (label, value) => {
 
-        doc.font("Helvetica-Bold")
-          .text(value || "-", xLeft + 170, y);
+  doc.fontSize(11)
+    .font("Helvetica")
+    .text(label, xLeft, y);
 
-        y += gap;
-      };
+  doc.font("Helvetica-Bold");
+
+  // value text
+  doc.text(value || "-", xLeft + 170, y, {
+    width: 260
+  });
+
+  // automatic height calculate
+  const textHeight = doc.heightOfString(value || "-", {
+    width: 260
+  });
+
+  // dynamic gap
+  y += Math.max(gap, textHeight + 10);
+};
 
    add("Name", u.name);
     add("Admission No", u.admission_number);
