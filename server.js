@@ -1140,7 +1140,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
       }
 
       // ================= HEADER TEXT =================
-      doc.fillColor("#0b3d91")
+      doc.fillColor("#fff")
         .font("Helvetica-Bold")
         .fontSize(20)
         .text("SUCCESS COMPUTER CENTRE", 0, 25, { align: "center" });
@@ -1155,7 +1155,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
       doc.text("Cell : 9842927992, 8525927992", 0, 110, { align: "center" });
 
       // ================= TITLE =================
-      doc.fillColor("#fff")
+      doc.fillColor("#0b3d91")
         .font("Helvetica-Bold")
         .fontSize(14)
         .text("STUDENT'S INFORMATION", 0, 125, { align: "center" });
