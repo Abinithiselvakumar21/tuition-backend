@@ -1073,7 +1073,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
       const pageWidth = doc.page.width;
       const pageHeight = doc.page.height;
 
-      // ================= DATE FORMAT FIX =================
+      // ================= DATE FORMAT =================
       const formatDate = (d) => {
         if (!d) return "-";
 
@@ -1110,23 +1110,19 @@ app.get("/computer/pdf/:adm", (req, res) => {
 
       // ================= BACKGROUND =================
       doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
-    
 
-      // ================= HEADER BOX (WHITE BG + BLUE BORDER) =================
-const headerHeight = 160; // 👈 increased size
+      // ================= HEADER BOX =================
+      const headerHeight = 160;
 
-doc.save();
+      doc.save();
+      doc.rect(0, 0, pageWidth, headerHeight).fill("#ffffff");
 
-// white background (safe reset)
-doc.rect(0, 0, pageWidth, headerHeight).fill("#ffffff");
+      doc.lineWidth(2)
+        .strokeColor("#0b3d91")
+        .rect(15, 10, pageWidth - 30, headerHeight - 20)
+        .stroke();
 
-// blue border box
-doc.lineWidth(2)
-  .strokeColor("#0b3d91")
-  .rect(15, 10, pageWidth - 30, headerHeight - 20)
-  .stroke();
-
-doc.restore();
+      doc.restore();
 
       // ================= WATERMARK =================
       if (fs.existsSync(educationLogo)) {
@@ -1146,7 +1142,7 @@ doc.restore();
         doc.restore();
       }
 
-      // ================= HEADER LOGOS =================
+      // ================= LOGOS =================
       if (fs.existsSync(computerLogo)) {
         doc.image(computerLogo, 20, 20, { width: 85 });
       }
@@ -1156,31 +1152,20 @@ doc.restore();
       }
 
       // ================= HEADER TEXT =================
-doc.fillColor("#0b3d91")
-  .font("Helvetica-Bold")
-  .fontSize(22)
-  .text("SUCCESS COMPUTER CENTRE", 0, 35, {
-    align: "center"
-  });
+      doc.fillColor("#0b3d91")
+        .font("Helvetica-Bold")
+        .fontSize(22)
+        .text("SUCCESS COMPUTER CENTRE", 0, 35, { align: "center" });
 
-doc.fontSize(13)
-  .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 65, {
-    align: "center"
-  });
+      doc.fontSize(13)
+        .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 65, { align: "center" });
 
-doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 85, {
-  align: "center"
-});
+      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 85, { align: "center" });
 
-doc.text("gmail : sccrpattanam@gmail.com", 0, 105, {
-  align: "center"
-});
+      doc.text("gmail : sccrpattanam@gmail.com", 0, 105, { align: "center" });
 
-doc.text("Cell : 9842927992, 8525927992", 0, 125, {
-  align: "center"
-});
+      doc.text("Cell : 9842927992, 8525927992", 0, 125, { align: "center" });
 
-      // ================= TITLE =================
       doc.fillColor("#0b3d91")
         .font("Helvetica-Bold")
         .fontSize(14)
@@ -1193,7 +1178,7 @@ doc.text("Cell : 9842927992, 8525927992", 0, 125, {
       let y = 200;
       const gap = 28;
 
-      // ✅ CLEAN FIXED FUNCTION (ONLY ONCE)
+      // ✅ ONLY ONE FUNCTION (FIXED)
       const add = (label, value) => {
 
         const labelX = 100;
@@ -1210,7 +1195,7 @@ doc.text("Cell : 9842927992, 8525927992", 0, 125, {
 
       add("Name", u.name);
       add("Admission No", u.admission_number);
-      add("Accademic year", u.batch);
+      add("Academic Year", u.batch);
       add("Course", u.class_group);
       add("Medium", u.medium);
       add("Board", u.board);
@@ -1218,43 +1203,41 @@ doc.text("Cell : 9842927992, 8525927992", 0, 125, {
       add("Father Occupation", u.father_occupation);
       add("Contact", (u.contact_details || "").split(",").join(" | "));
       add("Transport", u.transport);
-      add("Name of School/College", u.school_details);
+      add("School/College", u.school_details);
       add("Duration", u.duration);
-      add("Valid Upto Date", formatDate(u.valid_upto));
+      add("Valid Upto", formatDate(u.valid_upto));
       add("Exam Date", formatDate(u.exam_date));
       add("Address", u.address);
       add("Status", u.status);
       add("Joining Date", joinDate);
       add("Joining Time", joinTime);
 
-      // ================= SIGNATURE =================
-const sigY = 750;
+      // ================= SIGNATURE (CENTER FIXED) =================
+      const sigY = 750;
+      const lineWidth = 150;
+      const center = pageWidth / 2;
+      const gapSig = 120;
 
-const lineWidth = 150;
-const center = pageWidth / 2;
-const gap = 120;
+      const drawSignature = (label, x) => {
 
-const drawSignature = (label, x) => {
+        doc.moveTo(x, sigY)
+          .lineTo(x + lineWidth, sigY)
+          .stroke();
 
-  doc.moveTo(x, sigY)
-    .lineTo(x + lineWidth, sigY)
-    .stroke();
+        doc.fontSize(11)
+          .text(label, x, sigY + 10, {
+            width: lineWidth,
+            align: "center"
+          });
+      };
 
-  doc.fontSize(11)
-    .text(label, x, sigY + 10, {
-      width: lineWidth,
-      align: "center"
-    });
-};
+      drawSignature("Chairman's Signature", center - gapSig - lineWidth);
+      drawSignature("Parent's Signature", center + gapSig - lineWidth);
 
-drawSignature("Chairman's Signature", center - gap - lineWidth);
-drawSignature("Parent's Signature", center + gap - lineWidth);
-
-doc.end();
+      doc.end();
     }
   );
 });
-
 
 // ================= TUTORIAL REGISTRATION =================
 app.post("/register", async (req, res) => {
