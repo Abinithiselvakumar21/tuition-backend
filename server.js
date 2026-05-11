@@ -320,6 +320,8 @@ app.put("/student/update/:adm", (req, res) => {
     mother_occupation,
     contact_details,
     transport,
+    school_details,
+    address,
     password
   } = req.body;
 
@@ -341,6 +343,8 @@ app.put("/student/update/:adm", (req, res) => {
       mother_occupation=?,
       contact_details=?,
       transport=?,
+      school_details=?,
+      address=?,
       password=?
       WHERE admission_number=?
     `;
@@ -357,6 +361,8 @@ app.put("/student/update/:adm", (req, res) => {
       mother_occupation,
       contact_details,
       transport,
+      school_details,
+      address,
       password,
       adm
     ];
@@ -376,6 +382,8 @@ app.put("/student/update/:adm", (req, res) => {
       mother_occupation=?,
       contact_details=?,
       transport=?,
+      school_details=?,
+      address=?
       WHERE admission_number=?
     `;
 
@@ -391,6 +399,8 @@ app.put("/student/update/:adm", (req, res) => {
       mother_occupation,
       contact_details,
       transport,
+      school_details,
+      address,
       adm
     ];
   }
@@ -399,6 +409,7 @@ app.put("/student/update/:adm", (req, res) => {
 
     if (err) {
       console.log(err);
+
       return res.status(500).json({
         success: false,
         message: "Update failed"
