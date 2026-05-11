@@ -1110,14 +1110,21 @@ app.get("/computer/pdf/:adm", (req, res) => {
 
       // ================= BACKGROUND =================
       doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
-      doc.save();
+    
 
-// outer white padding area
-doc.rect(0, 0, pageWidth, 140).fill("#eef3ff");
+      // ================= HEADER BOX (WHITE BG + BLUE BORDER) =================
+const headerHeight = 160; // 👈 increased size
 
-// blue header box (centered card style)
-doc.roundedRect(20, 10, pageWidth - 40, 120, 15)
-  .fill("#0b3d91");
+doc.save();
+
+// white background (safe reset)
+doc.rect(0, 0, pageWidth, headerHeight).fill("#ffffff");
+
+// blue border box
+doc.lineWidth(2)
+  .strokeColor("#0b3d91")
+  .rect(15, 10, pageWidth - 30, headerHeight - 20)
+  .stroke();
 
 doc.restore();
 
@@ -1149,19 +1156,29 @@ doc.restore();
       }
 
       // ================= HEADER TEXT =================
-      doc.fillColor("#fff")
-        .font("Helvetica-Bold")
-        .fontSize(20)
-        .text("SUCCESS COMPUTER CENTRE", 0, 25, { align: "center" });
+doc.fillColor("#0b3d91")
+  .font("Helvetica-Bold")
+  .fontSize(22)
+  .text("SUCCESS COMPUTER CENTRE", 0, 25, {
+    align: "center"
+  });
 
-      doc.fontSize(13)
-        .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 60, { align: "center" });
+doc.fontSize(13)
+  .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 65, {
+    align: "center"
+  });
 
-      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 77, { align: "center" });
+doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 85, {
+  align: "center"
+});
 
-      doc.text("gmail : sccrpattanam@gmail.com", 0, 95, { align: "center" });
+doc.text("gmail : sccrpattanam@gmail.com", 0, 105, {
+  align: "center"
+});
 
-      doc.text("Cell : 9842927992, 8525927992", 0, 110, { align: "center" });
+doc.text("Cell : 9842927992, 8525927992", 0, 125, {
+  align: "center"
+});
 
       // ================= TITLE =================
       doc.fillColor("#0b3d91")
