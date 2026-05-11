@@ -1159,7 +1159,7 @@ doc.restore();
 doc.fillColor("#0b3d91")
   .font("Helvetica-Bold")
   .fontSize(22)
-  .text("SUCCESS COMPUTER CENTRE", 0, 25, {
+  .text("SUCCESS COMPUTER CENTRE", 0, 35, {
     align: "center"
   });
 
@@ -1184,7 +1184,7 @@ doc.text("Cell : 9842927992, 8525927992", 0, 125, {
       doc.fillColor("#0b3d91")
         .font("Helvetica-Bold")
         .fontSize(14)
-        .text("STUDENT'S INFORMATION", 0, 125, { align: "center" });
+        .text("STUDENT'S INFORMATION", 0, 140, { align: "center" });
 
       // ================= DATA =================
       doc.fillColor("#000");
@@ -1228,15 +1228,43 @@ doc.text("Cell : 9842927992, 8525927992", 0, 125, {
       add("Joining Time", joinTime);
 
       // ================= SIGNATURE =================
-      const sigY = 780;
+const sigY = 750;
 
-      doc.moveTo(120, sigY).lineTo(260, sigY).stroke();
-      doc.fontSize(11).text("Chairman's Signature", 110, sigY + 10);
+const lineWidth = 150;
+const center = pageWidth / 2;
+const gap = 120;
 
-      doc.moveTo(350, sigY).lineTo(490, sigY).stroke();
-      doc.text("Parent's Signature", 360, sigY + 10);
+// ================= CHAIRMAN =================
+const leftX = center - gap - lineWidth;
 
-      doc.end();
+// line
+doc.moveTo(leftX, sigY)
+  .lineTo(leftX + lineWidth, sigY)
+  .stroke();
+
+// text (CENTER under line)
+doc.fontSize(11)
+  .text("Chairman's Signature", leftX, sigY + 10, {
+    width: lineWidth,
+    align: "center"
+  });
+
+// ================= PARENT =================
+const rightX = center + gap - lineWidth;
+
+// line
+doc.moveTo(rightX, sigY)
+  .lineTo(rightX + lineWidth, sigY)
+  .stroke();
+
+// text (CENTER under line)
+doc.fontSize(11)
+  .text("Parent's Signature", rightX, sigY + 10, {
+    width: lineWidth,
+    align: "center"
+  });
+
+doc.end();
     }
   );
 });
