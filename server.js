@@ -1234,35 +1234,21 @@ const lineWidth = 150;
 const center = pageWidth / 2;
 const gap = 120;
 
-// ================= CHAIRMAN =================
-const leftX = center - gap - lineWidth;
+const drawSignature = (label, x) => {
 
-// line
-doc.moveTo(leftX, sigY)
-  .lineTo(leftX + lineWidth, sigY)
-  .stroke();
+  doc.moveTo(x, sigY)
+    .lineTo(x + lineWidth, sigY)
+    .stroke();
 
-// text (CENTER under line)
-doc.fontSize(11)
-  .text("Chairman's Signature", leftX, sigY + 10, {
-    width: lineWidth,
-    align: "center"
-  });
+  doc.fontSize(11)
+    .text(label, x, sigY + 10, {
+      width: lineWidth,
+      align: "center"
+    });
+};
 
-// ================= PARENT =================
-const rightX = center + gap - lineWidth;
-
-// line
-doc.moveTo(rightX, sigY)
-  .lineTo(rightX + lineWidth, sigY)
-  .stroke();
-
-// text (CENTER under line)
-doc.fontSize(11)
-  .text("Parent's Signature", rightX, sigY + 10, {
-    width: lineWidth,
-    align: "center"
-  });
+drawSignature("Chairman's Signature", center - gap - lineWidth);
+drawSignature("Parent's Signature", center + gap - lineWidth);
 
 doc.end();
     }
