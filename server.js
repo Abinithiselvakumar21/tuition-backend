@@ -495,6 +495,9 @@ app.get("/pdf/:adm", (req, res) => {
 
       const doc = new PDFDocument({ size: "A4", margin: 0 });
 
+      // ✅ TAMIL FONT REGISTER
+      doc.registerFont("Tamil", "./fonts/Tamil.ttf");
+
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
@@ -506,28 +509,28 @@ app.get("/pdf/:adm", (req, res) => {
       const pageWidth = doc.page.width;
       const pageHeight = doc.page.height;
 
-const createdAt = u.created_at
-  ? new Date(u.created_at)
-  : new Date();
+      const createdAt = u.created_at
+        ? new Date(u.created_at)
+        : new Date();
 
-// force India timezone format
-const joinDate = createdAt.toLocaleDateString("en-IN", {
-  timeZone: "Asia/Kolkata"
-});
+      // force India timezone format
+      const joinDate = createdAt.toLocaleDateString("en-IN", {
+        timeZone: "Asia/Kolkata"
+      });
 
-const joinTime = createdAt.toLocaleTimeString("en-IN", {
-  timeZone: "Asia/Kolkata",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: true
-});
+      const joinTime = createdAt.toLocaleTimeString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      });
 
       // ================= LOGOS =================
       const tuitionLogo = path.join(__dirname, "assets", "tuition logo.png");
       const associationLogo = path.join(__dirname, "assets", "assos logo.png");
 
-      // ================= 🔥 WATERMARK (ONLY EDUCATION LOGO) =================
+      // ================= WATERMARK =================
       const watermark = path.join(__dirname, "assets", "education logo.png");
 
       // ================= BACKGROUND =================
@@ -536,10 +539,10 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       // ================= WATERMARK =================
       if (fs.existsSync(watermark)) {
 
-        const wmSize = 300; // good visible size
+        const wmSize = 300;
 
         doc.save();
-        doc.opacity(0.05); // very light watermark
+        doc.opacity(0.05);
 
         doc.image(
           watermark,
@@ -554,83 +557,82 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       // ================= HEADER =================
       doc.rect(0, 0, pageWidth, 150).fill("#fff");
 
-      // ================= HEADER BOX DESIGN =================
-doc.roundedRect(15, 8, pageWidth - 30, 145, 12)
-   .lineWidth(3)
-   .strokeColor("#0b3d91")
-   .stroke();
+      // ================= HEADER BOX =================
+      doc.roundedRect(15, 8, pageWidth - 30, 145, 12)
+        .lineWidth(3)
+        .strokeColor("#0b3d91")
+        .stroke();
 
-      // ================= LEFT → TUITION LOGO =================
+      // ================= LEFT LOGO =================
       if (fs.existsSync(tuitionLogo)) {
         doc.image(tuitionLogo, 25, 30, { width: 80 });
       }
 
-      // ================= RIGHT → ASSOCIATION LOGO =================
+      // ================= RIGHT LOGO =================
       if (fs.existsSync(associationLogo)) {
         doc.image(associationLogo, pageWidth - 105, 30, { width: 80 });
       }
 
-// ================= HEADER TEXT =================
+      // ================= HEADER TEXT =================
 
-// Top Tamil Quote
-doc.fillColor("#b8860b")
-  .font("Helvetica-Bold")
-  .fontSize(16)
-  .text("கல்வியே துணை", 0, 15, {
-    align: "center"
-  });
+      // ✅ Tamil Quote
+      doc.fillColor("#b8860b")
+        .font("Tamil")
+        .fontSize(16)
+        .text("கல்வியே துணை", 0, 15, {
+          align: "center"
+        });
 
-// Main Title
-doc.fillColor("#0b3d91");
+      // Main Title
+      doc.fillColor("#0b3d91");
 
-doc.font("Helvetica-Bold")
-  .fontSize(30)
-  .text("SUCCESS TUITION CENTRE", 0, 38, {
-    align: "center"
-  });
+      doc.font("Helvetica-Bold")
+        .fontSize(30)
+        .text("SUCCESS TUITION CENTRE", 0, 38, {
+          align: "center"
+        });
 
-// Association
-doc.font("Helvetica")
-  .fontSize(13)
-  .text(
-    "Affiliated with Tamilnadu Tuition Centre Association-24250341",
-    0,
-    70,
-    {
-      align: "center"
-    }
-  );
+      // Association
+      doc.font("Helvetica")
+        .fontSize(11)
+        .text(
+          "Affiliated with Tamilnadu Tuition Centre Association-24250341",
+          0,
+          70,
+          {
+            align: "center"
+          }
+        );
 
-// Address
-doc.text(
-  "R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408",
-  0,
-  90,
-  {
-    align: "center"
-  }
-);
+      // Address
+      doc.text(
+        "R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408",
+        0,
+        90,
+        {
+          align: "center"
+        }
+      );
 
-// Contact
-doc.text(
-  "Cell : 9842927992, 8525927992",
-  0,
-  110,
-  {
-    align: "center"
-  }
-);
+      // Contact
+      doc.text(
+        "Cell : 9842927992, 8525927992",
+        0,
+        110,
+        {
+          align: "center"
+        }
+      );
 
-// Gmail
-doc.text(
-  "gmail : stcrpattanam@gmail.com",
-  0,
-  130,
-  {
-    align: "center"
-  }
-);
-
+      // Gmail
+      doc.text(
+        "gmail : stcrpattanam@gmail.com",
+        0,
+        130,
+        {
+          align: "center"
+        }
+      );
 
       // ================= TITLE =================
       doc.fillColor("#0b3d91")
@@ -647,52 +649,49 @@ doc.text(
       const xLeft = 80;
       const gap = 26;
 
-const add = (label, value) => {
+      const add = (label, value) => {
 
-  doc.fontSize(11)
-    .font("Helvetica")
-    .text(label, xLeft, y);
+        doc.fontSize(11)
+          .font("Helvetica")
+          .text(label, xLeft, y);
 
-  doc.font("Helvetica-Bold");
+        doc.font("Helvetica-Bold");
 
-  // value text
-  doc.text(value || "-", xLeft + 170, y, {
-    width: 260
-  });
+        doc.text(value || "-", xLeft + 170, y, {
+          width: 260
+        });
 
-  // automatic height calculate
-  const textHeight = doc.heightOfString(value || "-", {
-    width: 260
-  });
+        const textHeight = doc.heightOfString(value || "-", {
+          width: 260
+        });
 
-  // dynamic gap
-  y += Math.max(gap, textHeight + 10);
-};
+        y += Math.max(gap, textHeight + 10);
+      };
 
-   add("Name", u.name);
-    add("Admission No", u.admission_number);
-    add("Class and Group", u.class_group);
-    add("Academic Year", u.batch);
-    add("Medium", u.medium);
-    add("Board", u.board);
-    add("Father Name", u.father_name);
-    add("Mother Name", u.mother_name);
+      add("Name", u.name);
+      add("Admission No", u.admission_number);
+      add("Class and Group", u.class_group);
+      add("Academic Year", u.batch);
+      add("Medium", u.medium);
+      add("Board", u.board);
+      add("Father Name", u.father_name);
+      add("Father Occupation", u.father_occupation);
+      add("Mother Name", u.mother_name);
+      add("Mother Occupation", u.mother_occupation);
 
-add(
-  "Contact",
-  u.contact_details
-    ? u.contact_details.split(",").join(" | ")
-    : "-"
-);
+      add(
+        "Contact",
+        u.contact_details
+          ? u.contact_details.split(",").join(" | ")
+          : "-"
+      );
 
-    add("School", u.school_details);
-    add("Address", u.address);
-    add("Status", u.status);
-    add("Joining Date", joinDate);
-    add("Joining Time", joinTime);
-
-    doc.moveDown(3);
-
+      add("Transport", u.transport);
+      add("School", u.school_details);
+      add("Address", u.address);
+      add("Status", u.status);
+      add("Joining Date", joinDate);
+      add("Joining Time", joinTime);
 
       // ================= SIGNATURE =================
       const sigY = 690;
@@ -700,7 +699,8 @@ add(
       doc.strokeColor("#000");
 
       doc.moveTo(80, sigY).lineTo(240, sigY).stroke();
-      doc.fontSize(10).text("Chairman's Signature", 85, sigY + 5);
+      doc.fontSize(10).font("Helvetica")
+        .text("Chairman's Signature", 85, sigY + 5);
 
       doc.moveTo(360, sigY).lineTo(520, sigY).stroke();
       doc.text("Parent's Signature", 370, sigY + 5);
@@ -709,6 +709,7 @@ add(
     }
   );
 });
+
 
 // ================= 🔥 ADD COMPUTER (FIXED VERSION) =================
 app.post("/add-computer", async (req, res) => {
