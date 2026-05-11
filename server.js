@@ -1209,8 +1209,11 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       add("Address", u.address);
       add("Status", u.status);
       add("Joining Date", joinDate);
-      
-const add = (label, value) => {
+
+      add("Joining Time", joinTime);
+
+
+      const add = (label, value) => {
 
   const labelX = 100;
   const valueX = 250;   // 👉 VALUE COLUMN START (important fix)
@@ -1225,7 +1228,6 @@ const add = (label, value) => {
 
   y += gap;
 };
-      add("Joining Time", joinTime);
 
       // ================= SIGNATURE =================
       const sigY = 780;
