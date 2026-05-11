@@ -1143,7 +1143,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       }
 
       // ================= HEADER TEXT =================
-      doc.fillColor("white")
+      doc.fillColor("#0b3d91")
         .font("Helvetica-Bold")
         .fontSize(20)
         .text("SUCCESS COMPUTER CENTRE", 0, 25, {
@@ -1151,24 +1151,24 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
         });
 
       doc.fontSize(13)
-        .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 55, {
+        .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 60, {
           align: "center"
         });
 
-      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 70, {
+      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 77, {
         align: "center"
       });
 
-      doc.text("gmail : sccrpattanam@gmail.com", 0, 85, {
+      doc.text("gmail : sccrpattanam@gmail.com", 0, 95, {
         align: "center"
       });
 
-      doc.text("Cell : 9842927992, 8525927992", 0, 100, {
+      doc.text("Cell : 9842927992, 8525927992", 0, 110, {
         align: "center"
       });
 
       // ================= TITLE =================
-      doc.fillColor("#0b3d91")
+      doc.fillColor("#fff")
         .font("Helvetica-Bold")
         .fontSize(14)
         .text("STUDENT'S INFORMATION", 0, 125, {
@@ -1209,10 +1209,26 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       add("Address", u.address);
       add("Status", u.status);
       add("Joining Date", joinDate);
+      
+const add = (label, value) => {
+
+  const labelX = 100;
+  const valueX = 250;   // 👉 VALUE COLUMN START (important fix)
+
+  doc.font("Helvetica")
+    .fontSize(12)
+    .text(label + ":", labelX, y, { width: 140 });
+
+  doc.text(value || "-", valueX, y, {
+    width: 300
+  });
+
+  y += gap;
+};
       add("Joining Time", joinTime);
 
       // ================= SIGNATURE =================
-      const sigY = 710;
+      const sigY = 780;
 
       doc.moveTo(120, sigY).lineTo(260, sigY).stroke();
       doc.fontSize(11).text("Chairman's Signature", 110, sigY + 10);
