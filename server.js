@@ -1089,22 +1089,19 @@ app.get("/computer/pdf/:adm", (req, res) => {
         return `${day}-${month}-${year} (${weekday})`;
       };
 
-const createdAt = u.created_at
-  ? new Date(u.created_at)
-  : new Date();
+      const createdAt = u.created_at ? new Date(u.created_at) : new Date();
 
-// force India timezone format
-const joinDate = createdAt.toLocaleDateString("en-IN", {
-  timeZone: "Asia/Kolkata"
-});
+      const joinDate = createdAt.toLocaleDateString("en-IN", {
+        timeZone: "Asia/Kolkata"
+      });
 
-const joinTime = createdAt.toLocaleTimeString("en-IN", {
-  timeZone: "Asia/Kolkata",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: true
-});
+      const joinTime = createdAt.toLocaleTimeString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      });
 
       // ================= FILES =================
       const educationLogo = path.join(__dirname, "assets", "education logo.png");
@@ -1146,34 +1143,22 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       doc.fillColor("#0b3d91")
         .font("Helvetica-Bold")
         .fontSize(20)
-        .text("SUCCESS COMPUTER CENTRE", 0, 25, {
-          align: "center"
-        });
+        .text("SUCCESS COMPUTER CENTRE", 0, 25, { align: "center" });
 
       doc.fontSize(13)
-        .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 60, {
-          align: "center"
-        });
+        .text("SARVA I.T & EDUCATIONAL DEVELOPMENT (SITED) - 4936", 0, 60, { align: "center" });
 
-      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 77, {
-        align: "center"
-      });
+      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 77, { align: "center" });
 
-      doc.text("gmail : sccrpattanam@gmail.com", 0, 95, {
-        align: "center"
-      });
+      doc.text("gmail : sccrpattanam@gmail.com", 0, 95, { align: "center" });
 
-      doc.text("Cell : 9842927992, 8525927992", 0, 110, {
-        align: "center"
-      });
+      doc.text("Cell : 9842927992, 8525927992", 0, 110, { align: "center" });
 
       // ================= TITLE =================
       doc.fillColor("#fff")
         .font("Helvetica-Bold")
         .fontSize(14)
-        .text("STUDENT'S INFORMATION", 0, 125, {
-          align: "center"
-        });
+        .text("STUDENT'S INFORMATION", 0, 125, { align: "center" });
 
       // ================= DATA =================
       doc.fillColor("#000");
@@ -1182,10 +1167,17 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       let y = 200;
       const gap = 28;
 
+      // ✅ CLEAN FIXED FUNCTION (ONLY ONCE)
       const add = (label, value) => {
+
+        const labelX = 100;
+        const valueX = 250;
+
         doc.font("Helvetica")
           .fontSize(12)
-          .text(`${label}: ${value || "-"}`, x, y);
+          .text(label + ":", labelX, y, { width: 140 });
+
+        doc.text(value || "-", valueX, y, { width: 300 });
 
         y += gap;
       };
@@ -1194,40 +1186,20 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       add("Admission No", u.admission_number);
       add("Accademic year", u.batch);
       add("Course", u.class_group);
-      
       add("Medium", u.medium);
       add("Board", u.board);
-       add("Father Name", u.father_name);
-        add("Father Occupation", u.father_occupation);
-     add("Contact", (u.contact_details || "").split(",").join("  |  "));
+      add("Father Name", u.father_name);
+      add("Father Occupation", u.father_occupation);
+      add("Contact", (u.contact_details || "").split(",").join(" | "));
       add("Transport", u.transport);
-       add("Name of the School/College", u.school_details);
-     add("Duration", u.duration);
+      add("Name of School/College", u.school_details);
+      add("Duration", u.duration);
       add("Valid Upto Date", formatDate(u.valid_upto));
       add("Exam Date", formatDate(u.exam_date));
-      
       add("Address", u.address);
       add("Status", u.status);
       add("Joining Date", joinDate);
-
       add("Joining Time", joinTime);
-
-
-      const add = (label, value) => {
-
-  const labelX = 100;
-  const valueX = 250;   // 👉 VALUE COLUMN START (important fix)
-
-  doc.font("Helvetica")
-    .fontSize(12)
-    .text(label + ":", labelX, y, { width: 140 });
-
-  doc.text(value || "-", valueX, y, {
-    width: 300
-  });
-
-  y += gap;
-};
 
       // ================= SIGNATURE =================
       const sigY = 780;
@@ -1242,7 +1214,6 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
     }
   );
 });
-
 
 
 // ================= TUTORIAL REGISTRATION =================
