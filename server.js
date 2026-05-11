@@ -1046,7 +1046,6 @@ app.delete("/computer/delete/:adm", (req, res) => {
 });
 
 
-
 // ================= 🔥 COMPUTER PDF (FINAL CLEAN + WATERMARK) =================
 app.get("/computer/pdf/:adm", (req, res) => {
 
@@ -1140,7 +1139,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
       }
 
       // ================= HEADER TEXT =================
-      doc.fillColor("#fff")
+      doc.fillColor("#0b3d91")
         .font("Helvetica-Bold")
         .fontSize(20)
         .text("SUCCESS COMPUTER CENTRE", 0, 25, { align: "center" });
@@ -1155,10 +1154,65 @@ app.get("/computer/pdf/:adm", (req, res) => {
       doc.text("Cell : 9842927992, 8525927992", 0, 110, { align: "center" });
 
       // ================= TITLE =================
-      doc.fillColor("#0b3d91")
+      doc.fillColor("#fff")
         .font("Helvetica-Bold")
         .fontSize(14)
         .text("STUDENT'S INFORMATION", 0, 125, { align: "center" });
+
+      // ================= DATA =================
+      doc.fillColor("#000");
+
+      let x = 100;
+      let y = 200;
+      const gap = 28;
+
+      // ✅ CLEAN FIXED FUNCTION (ONLY ONCE)
+      const add = (label, value) => {
+
+        const labelX = 100;
+        const valueX = 250;
+
+        doc.font("Helvetica")
+          .fontSize(12)
+          .text(label + ":", labelX, y, { width: 140 });
+
+        doc.text(value || "-", valueX, y, { width: 300 });
+
+        y += gap;
+      };
+
+      add("Name", u.name);
+      add("Admission No", u.admission_number);
+      add("Accademic year", u.batch);
+      add("Course", u.class_group);
+      add("Medium", u.medium);
+      add("Board", u.board);
+      add("Father Name", u.father_name);
+      add("Father Occupation", u.father_occupation);
+      add("Contact", (u.contact_details || "").split(",").join(" | "));
+      add("Transport", u.transport);
+      add("Name of School/College", u.school_details);
+      add("Duration", u.duration);
+      add("Valid Upto Date", formatDate(u.valid_upto));
+      add("Exam Date", formatDate(u.exam_date));
+      add("Address", u.address);
+      add("Status", u.status);
+      add("Joining Date", joinDate);
+      add("Joining Time", joinTime);
+
+      // ================= SIGNATURE =================
+      const sigY = 780;
+
+      doc.moveTo(120, sigY).lineTo(260, sigY).stroke();
+      doc.fontSize(11).text("Chairman's Signature", 110, sigY + 10);
+
+      doc.moveTo(350, sigY).lineTo(490, sigY).stroke();
+      doc.text("Parent's Signature", 360, sigY + 10);
+
+      doc.end();
+    }
+  );
+});
 
       // ================= DATA =================
       doc.fillColor("#000");
