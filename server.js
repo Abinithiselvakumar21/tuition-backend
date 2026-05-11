@@ -144,8 +144,11 @@ app.post("/add-student", async (req, res) => {
       medium,
       board,
       father_name,
+      father_occupation,
       mother_name,
+      mother_occupation,
       contact_details,
+      transport,
       school_details,
       address,
       status,
@@ -202,14 +205,17 @@ app.post("/add-student", async (req, res) => {
             medium,
             board,
             father_name,
+            father_occupation,
             mother_name,
+            mother_occupation,
             contact_details,
+            transport,
             school_details,
             address,
             status,
             type
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         db.query(
@@ -223,8 +229,11 @@ app.post("/add-student", async (req, res) => {
             medium || null,
             board || null,
             father_name || null,
+            father_occupation || null,
             mother_name || null,
+            mother_occupation || null,
             contact_details || null,
+            transport || null,
             school_details || null,
             address || null,
             status || "active",
@@ -306,8 +315,11 @@ app.put("/student/update/:adm", (req, res) => {
     medium,
     board,
     father_name,
+    father_occupation,
     mother_name,
+    mother_occupation,
     contact_details,
+    transport,
     password
   } = req.body;
 
@@ -324,8 +336,11 @@ app.put("/student/update/:adm", (req, res) => {
       medium=?,
       board=?,
       father_name=?,
+      father_occupation=?,
       mother_name=?,
+      mother_occupation=?,
       contact_details=?,
+      transport=?,
       password=?
       WHERE admission_number=?
     `;
@@ -337,8 +352,11 @@ app.put("/student/update/:adm", (req, res) => {
       medium,
       board,
       father_name,
+      father_occupation,
       mother_name,
+      mother_occupation,
       contact_details,
+      transport,
       password,
       adm
     ];
@@ -353,8 +371,11 @@ app.put("/student/update/:adm", (req, res) => {
       medium=?,
       board=?,
       father_name=?,
+      father_occupation=?,
       mother_name=?,
-      contact_details=?
+      mother_occupation=?,
+      contact_details=?,
+      transport=?,
       WHERE admission_number=?
     `;
 
@@ -365,8 +386,11 @@ app.put("/student/update/:adm", (req, res) => {
       medium,
       board,
       father_name,
+      father_occupation,
       mother_name,
+      mother_occupation,
       contact_details,
+      transport,
       adm
     ];
   }
@@ -535,36 +559,66 @@ doc.roundedRect(15, 8, pageWidth - 30, 145, 12)
         doc.image(associationLogo, pageWidth - 105, 30, { width: 80 });
       }
 
-      // ================= HEADER TEXT =================
-      doc.fillColor("#0b3d91");
+// ================= HEADER TEXT =================
 
-      doc.font("Helvetica-Bold")
-        .fontSize(30)
-        .text("Success Tuition Centre", 0, 35, {
-          align: "center"
-        });
+// Top Tamil Quote
+doc.fillColor("#b8860b")
+  .font("Helvetica-Bold")
+  .fontSize(16)
+  .text("கல்வியே துணை", 0, 15, {
+    align: "center"
+  });
 
-      doc.font("Helvetica")
-        .fontSize(13)
-        .text("Affiliated with Tamilnadu Tuition Centre Association-24250341", 0, 65, {
-          align: "center"
-        });
+// Main Title
+doc.fillColor("#0b3d91");
 
-      doc.text("R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408", 0, 85, {
-        align: "center"
-      });
+doc.font("Helvetica-Bold")
+  .fontSize(30)
+  .text("SUCCESS TUITION CENTRE", 0, 38, {
+    align: "center"
+  });
 
+// Association
+doc.font("Helvetica")
+  .fontSize(13)
+  .text(
+    "Affiliated with Tamilnadu Tuition Centre Association-24250341",
+    0,
+    70,
+    {
+      align: "center"
+    }
+  );
 
-          doc.text("gmail :  stcrpattanam@gmail.com", 0, 125, {
-        align: "center"
-        
-      });
+// Address
+doc.text(
+  "R.Pattanam (P.O), Rasipuram (TK), Namakkal (Dt) - 637408",
+  0,
+  90,
+  {
+    align: "center"
+  }
+);
 
-      doc.text("Cell : 9842927992, 8525927992", 0, 105, {
-        align: "center"
-        
-      });
+// Contact
+doc.text(
+  "Cell : 9842927992, 8525927992",
+  0,
+  110,
+  {
+    align: "center"
+  }
+);
 
+// Gmail
+doc.text(
+  "gmail : stcrpattanam@gmail.com",
+  0,
+  130,
+  {
+    align: "center"
+  }
+);
 
 
       // ================= TITLE =================
