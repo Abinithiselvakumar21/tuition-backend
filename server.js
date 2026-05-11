@@ -1169,7 +1169,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
       doc.fillColor("#0b3d91")
         .font("Helvetica-Bold")
         .fontSize(14)
-        .text("STUDENT'S INFORMATION", 0, 140, { align: "center" });
+        .text("STUDENT'S INFORMATION", 0, 170, { align: "center" });
 
       // ================= DATA =================
       doc.fillColor("#000");
