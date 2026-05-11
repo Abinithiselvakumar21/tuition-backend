@@ -587,7 +587,7 @@ app.get("/pdf/:adm", (req, res) => {
       doc.fillColor("#0b3d91");
 
       doc.font("Helvetica-Bold")
-        .fontSize(30)
+        .fontSize(28)
         .text("SUCCESS TUITION CENTRE", 0, 38, {
           align: "center"
         });
@@ -694,7 +694,7 @@ app.get("/pdf/:adm", (req, res) => {
       add("Joining Time", joinTime);
 
       // ================= SIGNATURE =================
-      const sigY = 690;
+     const sigY = 740;
 
       doc.strokeColor("#000");
 
