@@ -519,6 +519,12 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       // ================= HEADER =================
       doc.rect(0, 0, pageWidth, 150).fill("#fff");
 
+      // ================= HEADER BOX DESIGN =================
+doc.roundedRect(15, 15, pageWidth - 30, 145, 12)
+   .lineWidth(3)
+   .strokeColor("#0b3d91")
+   .stroke();
+
       // ================= LEFT → TUITION LOGO =================
       if (fs.existsSync(tuitionLogo)) {
         doc.image(tuitionLogo, 25, 30, { width: 80 });
