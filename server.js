@@ -1365,7 +1365,7 @@ app.post("/register", async (req, res) => {
 // ================= GET ALL =================
 app.get("/tutorial-students", (req, res) => {
 
-  db.query("SELECT * FROM tutorial_registration ORDER BY id ASS", (err, r) => {
+  db.query("SELECT * FROM tutorial_registration ORDER BY id ASC", (err, r) => {
 
     if (err) {
       console.log(err);
