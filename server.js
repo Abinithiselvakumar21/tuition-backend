@@ -1574,6 +1574,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
 
      // ================= BACKGROUND =================
 doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
+doc.rect(0, 0, pageWidth, 120).fill("#0b3d91");
 
 // ================= 🔥 WATERMARK =================
 if (fs.existsSync(watermark)) {
@@ -1664,7 +1665,7 @@ if (fs.existsSync(rightLogo)) {
 
       doc.font("Helvetica-Bold")
         .fontSize(14)
-        .text("STUDENT'S INFORMATION", 0, 160, {
+        .text("STUDENT'S INFORMATION", 0, 168, {
           align: "center"
         });
 
@@ -1692,8 +1693,12 @@ if (fs.existsSync(rightLogo)) {
       add("Medium", u.medium);
       add("Board", u.board);
       add("Father Name", u.father_name);
+      add("Father Occupation", u.father_occupation);
       add("Mother Name", u.mother_name);
+      add("Mother Occupation", u.mother_occupation);
       add("Contact", (u.contact_details || "").split(",").join("  |  "));
+      add("Transport", u.transport);
+      add("Address", u.address);
       add("Status", u.status);
       add("Joining Date", joinDate);
       add("Joining Time", joinTime);
