@@ -1213,7 +1213,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
       add("Joining Time", joinTime);
 
 // ================= SIGNATURE =================
-     const sigY = 740;
+     const sigY = 780;
 
       doc.strokeColor("#000");
 
