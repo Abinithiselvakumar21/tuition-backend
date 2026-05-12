@@ -1193,19 +1193,29 @@ app.get("/computer/pdf/:adm", (req, res) => {
       const gap = 28;
 
       // ✅ ONLY ONE FUNCTION (FIXED)
-      const add = (label, value) => {
+const add = (label, value) => {
+  const labelWidth = 160;
+  const valueWidth = 280;
 
-        const labelX = 100;
-        const valueX = 250;
+  doc.fontSize(11)
+    .font("Helvetica")
+    .text(label, xLeft, y, {
+      width: labelWidth
+    });
 
-        doc.font("Helvetica")
-          .fontSize(12)
-          .text(label + ":", labelX, y, { width: 140 });
+  doc.font("Helvetica-Bold")
+    .text(value || "-", xLeft + 170, y, {
+      width: valueWidth
+    });
 
-        doc.text(value || "-", valueX, y, { width: 300 });
+  // actual text height calculate
+  const textHeight = doc.heightOfString(value || "-", {
+    width: valueWidth
+  });
 
-        y += gap;
-      };
+  // dynamic equal spacing
+  y += Math.max(gap, textHeight + 10);
+};
 
       add("Name", u.name);
       add("Admission No", u.admission_number);
@@ -1627,7 +1637,7 @@ if (fs.existsSync(rightLogo)) {
         });
 
 
-      doc.fillColor("white");
+     doc.fillColor("#0b3d91");
 
       doc.font("Helvetica-Bold")
         .fontSize(20)
@@ -1674,16 +1684,29 @@ if (fs.existsSync(rightLogo)) {
       const xLeft = 80;
       const gap = 26;
 
-      const add = (label, value) => {
-        doc.fontSize(11)
-          .font("Helvetica")
-          .text(label, xLeft, y);
+const add = (label, value) => {
+  const labelWidth = 160;
+  const valueWidth = 280;
 
-        doc.font("Helvetica-Bold")
-          .text(value || "-", xLeft + 170, y);
+  doc.fontSize(11)
+    .font("Helvetica")
+    .text(label, xLeft, y, {
+      width: labelWidth
+    });
 
-        y += gap;
-      };
+  doc.font("Helvetica-Bold")
+    .text(value || "-", xLeft + 170, y, {
+      width: valueWidth
+    });
+
+  // actual text height calculate
+  const textHeight = doc.heightOfString(value || "-", {
+    width: valueWidth
+  });
+
+  // dynamic equal spacing
+  y += Math.max(gap, textHeight + 10);
+};
 
       add("Name", u.name);
       add("Admission No", u.admission_number);
