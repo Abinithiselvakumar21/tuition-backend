@@ -1062,6 +1062,10 @@ app.get("/computer/pdf/:adm", (req, res) => {
 
       const doc = new PDFDocument({ size: "A4", margin: 0 });
 
+                // ✅ TAMIL FONT REGISTER
+      doc.registerFont("Tamil", "./fonts/Tamil.ttf");
+      
+
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
@@ -1152,6 +1156,16 @@ app.get("/computer/pdf/:adm", (req, res) => {
       }
 
       // ================= HEADER TEXT =================
+
+          // ✅ Tamil Quote
+      doc.fillColor("#b8860b")
+        .font("Tamil")
+        .fontSize(16)
+        .text("கல்வியே துணை", 0, 15, {
+          align: "center"
+        });
+
+
       doc.fillColor("#0b3d91")
         .font("Helvetica-Bold")
         .fontSize(22)
