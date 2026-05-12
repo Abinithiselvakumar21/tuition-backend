@@ -1212,27 +1212,17 @@ app.get("/computer/pdf/:adm", (req, res) => {
       add("Joining Date", joinDate);
       add("Joining Time", joinTime);
 
-      // ================= SIGNATURE (CENTER FIXED) =================
-      const sigY = 750;
-      const lineWidth = 150;
-      const center = pageWidth / 2;
-      const gapSig = 120;
+// ================= SIGNATURE =================
+     const sigY = 740;
 
-      const drawSignature = (label, x) => {
+      doc.strokeColor("#000");
 
-        doc.moveTo(x, sigY)
-          .lineTo(x + lineWidth, sigY)
-          .stroke();
+      doc.moveTo(80, sigY).lineTo(240, sigY).stroke();
+      doc.fontSize(10).font("Helvetica")
+        .text("Chairman's Signature", 85, sigY + 5);
 
-        doc.fontSize(11)
-          .text(label, x, sigY + 10, {
-            width: lineWidth,
-            align: "center"
-          });
-      };
-
-      drawSignature("Chairman's Signature", center - gapSig - lineWidth);
-      drawSignature("Parent's Signature", center + gapSig - lineWidth);
+      doc.moveTo(360, sigY).lineTo(520, sigY).stroke();
+      doc.text("Parent's Signature", 370, sigY + 5);
 
       doc.end();
     }
