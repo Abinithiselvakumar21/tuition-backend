@@ -1064,7 +1064,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
 
                 // ✅ TAMIL FONT REGISTER
       doc.registerFont("Tamil", "./fonts/Tamil.ttf");
-      
+
 
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
@@ -1160,7 +1160,7 @@ app.get("/computer/pdf/:adm", (req, res) => {
           // ✅ Tamil Quote
       doc.fillColor("#b8860b")
         .font("Tamil")
-        .fontSize(16)
+        .fontSize(15)
         .text("கல்வியே துணை", 0, 15, {
           align: "center"
         });
@@ -1258,8 +1258,11 @@ app.post("/register", async (req, res) => {
       board,
       subject,
       father_name,
+      father_occupation,
       mother_name,
+      mother_occupation,
       contact_details,
+      transport,
       address
     } = req.body;
 
@@ -1273,8 +1276,8 @@ app.post("/register", async (req, res) => {
     db.query(
       `INSERT INTO tutorial_registration
       (admission_number,name,password,batch,class_group,medium,board,subject,
-       father_name,mother_name,contact_details,address,status)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+       father_name,father_occupation,mother_name,mother_occupation,contact_details,transport,address,status)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         admission_number,
         name,
@@ -1285,8 +1288,11 @@ app.post("/register", async (req, res) => {
         board || "",
         subject || "",
         father_name || "",
+        father_occupation || "",
         mother_name || "",
+        mother_occupation || "",
         contact_details || "",
+        transport || "",
         address || "",
         "active"
       ],
@@ -1372,15 +1378,18 @@ app.put("/tutorial/update/:adm", async (req, res) => {
       medium,
       board,
       father_name,
+      father_occupation,
       mother_name,
+      mother_occupation,
       contact_details,
+      transport,
       password
     } = req.body;
 
     let query = `
       UPDATE tutorial_registration
       SET name=?, class_group=?, subject=?, batch=?, medium=?, board=?,
-          father_name=?, mother_name=?, contact_details=?
+          father_name=?, father_occupation=?, mother_name=?, mother_occupation=?, contact_details=?, transport=?, address=?
     `;
 
     let values = [
@@ -1391,8 +1400,12 @@ app.put("/tutorial/update/:adm", async (req, res) => {
       medium,
       board,
       father_name,
+      father_occupation,
       mother_name,
-      contact_details
+      mother_occupation,
+      contact_details,
+      transport,
+      address,
     ];
 
     if (password && password.trim() !== "") {
@@ -1526,6 +1539,9 @@ app.get("/tutorial/pdf/:adm", (req, res) => {
 
       const doc = new PDFDocument({ size: "A4", margin: 0 });
 
+                 // ✅ TAMIL FONT REGISTER
+      doc.registerFont("Tamil", "./fonts/Tamil.ttf");
+
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
@@ -1555,48 +1571,65 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
 
       const watermark = path.join(__dirname, "assets", "education logo.png");
 
-      // ================= BACKGROUND =================
-      doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
+     // ================= BACKGROUND =================
+doc.rect(0, 0, pageWidth, pageHeight).fill("#eef3ff");
 
-      // ================= 🔥 WATERMARK (INCREASED SIZE) =================
-      if (fs.existsSync(watermark)) {
+// ================= 🔥 WATERMARK =================
+if (fs.existsSync(watermark)) {
 
-        const wmSize = 260; // 🔥 INCREASED FROM 180 → 260
+  const wmSize = 260;
 
-        const wmX = (pageWidth - wmSize) / 2;
-        const wmY = (pageHeight - wmSize) / 2;
+  const wmX = (pageWidth - wmSize) / 2;
+  const wmY = (pageHeight - wmSize) / 2;
 
-        doc.save();
-        doc.opacity(0.07); // slightly visible than before
+  doc.save();
+  doc.opacity(0.07);
 
-        doc.image(watermark, wmX, wmY, {
-          width: wmSize
+  doc.image(watermark, wmX, wmY, {
+    width: wmSize
+  });
+
+  doc.restore();
+}
+
+// ================= HEADER (WHITE BG + BLUE BORDER) =================
+const headerHeight = 160;
+
+// white header background
+doc.rect(0, 0, pageWidth, headerHeight).fill("#ffffff");
+
+// blue border only
+doc.lineWidth(2)
+  .strokeColor("#0b3d91")
+  .rect(15, 10, pageWidth - 30, headerHeight - 20)
+  .stroke();
+
+const leftLogo = path.join(__dirname, "assets", "tutorial logo.png");
+const rightLogo = path.join(__dirname, "assets", "assos logo.png");
+
+if (fs.existsSync(leftLogo)) {
+  doc.image(leftLogo, 25, 25, { width: 70 });
+}
+
+if (fs.existsSync(rightLogo)) {
+  doc.image(rightLogo, pageWidth - 95, 25, { width: 70 });
+}
+      // ================= HEADER TEXT =================
+
+             // ✅ Tamil Quote
+      doc.fillColor("#b8860b")
+        .font("Tamil")
+        .fontSize(15)
+        .text("கல்வியே துணை", 0, 15, {
+          align: "center"
         });
 
-        doc.restore();
-      }
-
-      // ================= HEADER =================
-      doc.rect(0, 0, pageWidth, 140).fill("#0b3d91");
-
-      const leftLogo = path.join(__dirname, "assets", "tutorial logo.png");
-      const rightLogo = path.join(__dirname, "assets", "assos logo.png");
-
-      if (fs.existsSync(leftLogo)) {
-        doc.image(leftLogo, 25, 25, { width: 70 });
-      }
-
-      if (fs.existsSync(rightLogo)) {
-        doc.image(rightLogo, pageWidth - 95, 25, { width: 70 });
-      }
-
-      // ================= HEADER TEXT =================
 
       doc.fillColor("white");
 
       doc.font("Helvetica-Bold")
         .fontSize(20)
-        .text("Success Tutorial Centre", 0, 35, {
+        .text("SUCCESS TUTORIAL CENTER", 0, 35, {
           align: "center"
         });
 
@@ -1626,7 +1659,7 @@ const joinTime = createdAt.toLocaleTimeString("en-IN", {
       });
 
       // ================= TITLE =================
-      doc.fillColor("#000");
+      doc.fillColor("#0b3d91");
 
       doc.font("Helvetica-Bold")
         .fontSize(14)
