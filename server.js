@@ -1666,7 +1666,7 @@ if (fs.existsSync(rightLogo)) {
         
       });
 
-      doc.text("Cell : 9842927992, 8525927992", 0, 127, {
+      doc.text("Cell : 9842927992, 8525927992", 0, 124, {
         align: "center"
       });
 
