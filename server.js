@@ -1277,49 +1277,77 @@ app.post("/register", async (req, res) => {
     } = req.body;
 
     if (!admission_number || !password || !name) {
-      return res.send("Required fields missing");
+      return res.json({
+        success: false,
+        message: "Required fields missing"
+      });
     }
-    
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // ✅ STEP 1: CHECK DUPLICATE ADMISSION NUMBER
     db.query(
-      `INSERT INTO tutorial_registration
-      (admission_number,name,password,batch,class_group,medium,board,subject,
-       father_name,father_occupation,mother_name,mother_occupation,contact_details,transport,address,status)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [
-        admission_number,
-        name,
-        hashedPassword,
-        batch || "",
-        class_group || "",
-        medium || "",
-        board || "",
-        subject || "",
-        father_name || "",
-        father_occupation || "",
-        mother_name || "",
-        mother_occupation || "",
-        contact_details || "",
-        transport || "",
-        address || "",
-        "active"
-      ],
-      (err) => {
+      "SELECT * FROM tutorial_registration WHERE admission_number=?",
+      [admission_number],
+      async (checkErr, checkResult) => {
 
-        if (err) {
-          console.log("DB ERROR:", err);
+        if (checkErr) {
+          console.log(checkErr);
           return res.json({
-  success: false,
-  message: "Registration failed ❌"
-});
+            success: false,
+            message: "Server error ❌"
+          });
         }
 
-        res.json({
-  success: true,
-  message: "Registered Successfully ✅"
-});
+        if (checkResult.length > 0) {
+          return res.json({
+            success: false,
+            message: "Admission Number already exists ⚠️ Please use another number"
+          });
+        }
+
+        // ✅ STEP 2: INSERT DATA
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        db.query(
+          `INSERT INTO tutorial_registration
+          (admission_number,name,password,batch,class_group,medium,board,subject,
+          father_name,father_occupation,mother_name,mother_occupation,
+          contact_details,transport,address,status)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          [
+            admission_number,
+            name,
+            hashedPassword,
+            batch || "",
+            class_group || "",
+            medium || "",
+            board || "",
+            subject || "",
+            father_name || "",
+            father_occupation || "",
+            mother_name || "",
+            mother_occupation || "",
+            contact_details || "",
+            transport || "",
+            address || "",
+            "active"
+          ],
+          (err) => {
+
+            if (err) {
+              console.log("DB ERROR:", err);
+              return res.json({
+                success: false,
+                message: "Registration failed ❌"
+              });
+            }
+
+            res.json({
+              success: true,
+              message: "Registered Successfully ✅"
+            });
+
+          }
+        );
 
       }
     );
@@ -1327,18 +1355,17 @@ app.post("/register", async (req, res) => {
   } catch (e) {
     console.log("SERVER ERROR:", e);
     res.json({
-  success: false,
-  message: "Server error ❌"
-});
+      success: false,
+      message: "Server error ❌"
+    });
   }
 
 });
 
-
 // ================= GET ALL =================
 app.get("/tutorial-students", (req, res) => {
 
-  db.query("SELECT * FROM tutorial_registration ORDER BY id DESC", (err, r) => {
+  db.query("SELECT * FROM tutorial_registration ORDER BY id ASS", (err, r) => {
 
     if (err) {
       console.log(err);
@@ -1352,23 +1379,28 @@ app.get("/tutorial-students", (req, res) => {
 
 
 // ================= GET SINGLE =================
-app.get("/tutorial/:adm", (req,res)=>{
+app.get("/tutorial/:adm", (req, res) => {
 
   db.query(
     "SELECT * FROM tutorial_registration WHERE admission_number=?",
     [req.params.adm],
-    (err,result)=>{
+    (err, result) => {
 
-      if(err){
+      if (err) {
         console.log(err);
-        return res.json({ success:false });
+        return res.status(500).json({
+          message: "Server error"
+        });
       }
 
-      if(result.length === 0){
-        return res.json({ success:false });
+      if (result.length === 0) {
+        return res.status(404).json({
+          message: "Student not found"
+        });
       }
 
       res.json(result[0]);
+
     }
   );
 
@@ -1666,7 +1698,7 @@ if (fs.existsSync(rightLogo)) {
         
       });
 
-      doc.text("Cell : 9842927992, 8525927992", 0, 124, {
+      doc.text("Cell : 9842927992, 8525927992", 0, 120, {
         align: "center"
       });
 
