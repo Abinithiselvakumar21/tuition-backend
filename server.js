@@ -1383,6 +1383,7 @@ app.put("/tutorial/update/:adm", async (req, res) => {
       mother_occupation,
       contact_details,
       transport,
+      address,
       password
     } = req.body;
 
