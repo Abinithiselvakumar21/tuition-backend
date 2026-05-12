@@ -1196,9 +1196,9 @@ app.get("/computer/pdf/:adm", (req, res) => {
       add("Name", u.name);
       add("Admission No", u.admission_number);
       add("Academic Year", u.batch);
-      add("Course", u.class_group);
-      add("Medium", u.medium);
-      add("Board", u.board);
+      add("Course Name", u.class_group);
+      add("Preferred Language", u.medium);
+      add("Level", u.board);
       add("Father Name", u.father_name);
       add("Father Occupation", u.father_occupation);
       add("Contact", (u.contact_details || "").split(",").join(" | "));
