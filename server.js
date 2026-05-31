@@ -1,11 +1,13 @@
 const express = require("express");
 const app = express();   // 🔥 MUST BE HERE FIRST
 const mysql = require("mysql2");
+
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
+const ExcelJS = require("exceljs");
 app.use(express.json());
 
 app.use(cors({
@@ -1860,6 +1862,71 @@ app.post("/login", (req, res) => {
 
 // 🔥 IMPORTANT FOR RENDER
 const PORT = process.env.PORT || 3000;
+
+
+// ================= DOWNLOAD EXCEL =================
+app.get("/students/excel", (req, res) => {
+
+  db.query("SELECT * FROM students ORDER BY id ASC", async (err, rows) => {
+
+    if (err) {
+      console.log(err);
+      return res.status(500).send("Database Error");
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Students");
+
+    worksheet.columns = [
+      { header: "Admission No", key: "admission_number", width: 20 },
+      { header: "Name", key: "name", width: 25 },
+      { header: "Class", key: "class_group", width: 20 },
+      { header: "Batch", key: "batch", width: 20 },
+      { header: "Medium", key: "medium", width: 20 },
+      { header: "Board", key: "board", width: 20 },
+      { header: "Father Name", key: "father_name", width: 25 },
+      { header: "Mother Name", key: "mother_name", width: 25 },
+      { header: "Contact", key: "contact_details", width: 25 },
+      { header: "School", key: "school_details", width: 30 },
+      { header: "Address", key: "address", width: 40 },
+      { header: "Status", key: "status", width: 15 }
+    ];
+
+    rows.forEach(row => {
+      worksheet.addRow({
+        admission_number: row.admission_number,
+        name: row.name,
+        class_group: row.class_group,
+        batch: row.batch,
+        medium: row.medium,
+        board: row.board,
+        father_name: row.father_name,
+        mother_name: row.mother_name,
+        contact_details: row.contact_details,
+        school_details: row.school_details,
+        address: row.address,
+        status: row.status
+      });
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=students.xlsx"
+    );
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+  });
+
+});
+
+
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
