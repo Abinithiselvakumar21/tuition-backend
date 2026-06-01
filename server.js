@@ -1261,16 +1261,16 @@ const add = (label, value) => {
   const labelWidth = 160;
   const valueWidth = 280;
 
-  doc.fontSize(11)
-    .font("Helvetica")
-    .text(label, xLeft, y, {
-      width: labelWidth
-    });
+doc.fontSize(11)
+  .font("Helvetica")
+  .text(label, x, y, {
+    width: labelWidth
+  });
 
-  doc.font("Helvetica-Bold")
-    .text(value || "-", xLeft + 170, y, {
-      width: valueWidth
-    });
+doc.font("Helvetica-Bold")
+  .text(value || "-", x + 170, y, {
+    width: valueWidth
+  });
 
   // actual text height calculate
   const textHeight = doc.heightOfString(value || "-", {
