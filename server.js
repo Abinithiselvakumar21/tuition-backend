@@ -1914,6 +1914,79 @@ const add = (label, value) => {
 });
 
 
+
+
+
+
+// ================= TUTORIAL STUDENTS EXCEL DOWNLOAD =================
+app.get("/tutorial-students/excel", (req, res) => {
+
+  db.query(
+    "SELECT * FROM tutorial_registration ORDER BY id ASC",
+    async (err, rows) => {
+
+      if (err) {
+        console.log(err);
+        return res.status(500).send("Database Error");
+      }
+
+      try {
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Tutorial Students");
+
+        worksheet.columns = [
+          { header: "Admission No", key: "admission_number", width: 20 },
+          { header: "Name", key: "name", width: 25 },
+          { header: "Academic Year", key: "batch", width: 20 },
+          { header: "Class", key: "class_group", width: 20 },
+          { header: "Medium", key: "medium", width: 20 },
+          { header: "Board", key: "board", width: 20 },
+          { header: "Subject", key: "subject", width: 25 },
+          { header: "Father Name", key: "father_name", width: 25 },
+          { header: "Father Occupation", key: "father_occupation", width: 25 },
+          { header: "Mother Name", key: "mother_name", width: 25 },
+          { header: "Mother Occupation", key: "mother_occupation", width: 25 },
+          { header: "Contact", key: "contact_details", width: 25 },
+          { header: "Transport", key: "transport", width: 20 },
+          { header: "Address", key: "address", width: 40 },
+          { header: "Status", key: "status", width: 15 }
+        ];
+
+        // Header Bold
+        worksheet.getRow(1).font = {
+          bold: true
+        };
+
+        // Add all students
+        rows.forEach(row => {
+          worksheet.addRow(row);
+        });
+
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=tutorial_students.xlsx"
+        );
+
+        await workbook.xlsx.write(res);
+
+        res.end();
+
+      } catch (error) {
+        console.log(error);
+        res.status(500).send("Excel Generation Error");
+      }
+
+    }
+  );
+
+});
+
 // ================= LOGIN =================
 app.post("/login", (req, res) => {
 
