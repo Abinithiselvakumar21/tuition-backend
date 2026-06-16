@@ -511,15 +511,6 @@ app.get("/pdf/:adm", (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
 const buffers = [];
 
 doc.on("data", (chunk) => {
