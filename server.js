@@ -709,13 +709,12 @@ app.get("/pdf/:adm", (req, res) => {
 
 
 
-
-
 // ================= PAGE 2 =================
 doc.addPage();
 
 doc.rect(0, 0, pageWidth, pageHeight).fill("#ffffff");
 
+// Title
 doc.fillColor("#000")
    .font("Tamil")
    .fontSize(18)
@@ -723,6 +722,7 @@ doc.fillColor("#000")
       align: "center"
    });
 
+// Rules
 doc.fontSize(11);
 
 doc.text(`
@@ -753,20 +753,51 @@ doc.text(`
 13. மாணவரின் கல்வி முன்னேற்ற தகவல்களை உடனடியாக தெரிவிக்க வேண்டும்.
 
 14. விதிமுறைகளை மீறினால் நடவடிக்கை எடுக்கப்படும்.
+`, 40, 80, {
+   width: pageWidth - 80,
+   align: "left"
+});
+
+// உறுதிமொழி Heading
+doc.moveDown(1);
 
 doc.font("Tamil")
-   .fontSize(16)
-   .text("உறுதிமொழி", 0, y, {
+   .fontSize(15)
+   .text("உறுதிமொழி", {
       align: "center"
    });
 
-மேலே குறிப்பிடப்பட்ட அனைத்து விதிமுறைகளையும் படித்து புரிந்து கொண்டேன். என் மகன் / மகள் அனைத்து விதிமுறைகளையும் பின்பற்றுவார் என உறுதி அளிக்கிறேன்.
+// உறுதிமொழி Text
+doc.moveDown(0.5);
 
-நாள் :
+doc.fontSize(11)
+   .text(
+      "மேலே குறிப்பிடப்பட்ட அனைத்து விதிமுறைகளையும் படித்து புரிந்து கொண்டேன். என் மகன் / மகள் அனைத்து விதிமுறைகளையும் பின்பற்றுவார் என உறுதி அளிக்கிறேன்.",
+      {
+         align: "justify"
+      }
+   );
 
-doc.text("இடம் : இரா.பட்டணம்", 40, y + 90);
+// Date & Signature
+doc.moveDown(2);
 
-doc.text("பெற்றோர் கையொப்பம்", pageWidth - 180, y + 90);
+const signY = doc.y;
+
+doc.text("நாள் :", 40, signY);
+
+doc.text(
+   "இடம் : இரா.பட்டணம்",
+   40,
+   signY + 30
+);
+
+doc.text(
+   "பெற்றோர் கையொப்பம்",
+   pageWidth - 180,
+   signY + 30
+);
+
+
 
 
       doc.end();
