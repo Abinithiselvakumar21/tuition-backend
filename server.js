@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();   // 🔥 MUST BE HERE FIRST
 const mysql = require("mysql2");
-
+const { PDFDocument } = require("pdf-lib");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const PDFDocument = require("pdfkit");
@@ -506,7 +506,82 @@ app.get("/pdf/:adm", (req, res) => {
         `attachment; filename=${u.admission_number}.pdf`
       );
 
-      doc.pipe(res);
+     
+
+
+
+
+const buffers = [];
+
+doc.on("data", (chunk) => {
+  buffers.push(chunk);
+});
+
+doc.on("end", async () => {
+  try {
+    const frontBuffer = Buffer.concat(buffers);
+
+    const frontPdf = await PDFDocument.load(frontBuffer);
+
+    const backPdfBytes = fs.readFileSync(
+      path.join(__dirname, "assets", "RULES & REGULATION.pdf")
+    );
+
+    const backPdfDoc = await PDFDocument.load(backPdfBytes);
+
+    const mergedPdf = await PDFDocument.create();
+
+    // Front PDF
+    const frontPages = await mergedPdf.copyPages(
+      frontPdf,
+      frontPdf.getPageIndices()
+    );
+
+    frontPages.forEach((page) => mergedPdf.addPage(page));
+
+    // Back PDF
+    const backPages = await mergedPdf.copyPages(
+      backPdfDoc,
+      backPdfDoc.getPageIndices()
+    );
+
+    backPages.forEach((page) => mergedPdf.addPage(page));
+
+    const finalPdf = await mergedPdf.save();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${u.admission_number}.pdf`
+    );
+
+    res.send(Buffer.from(finalPdf));
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("PDF Merge Failed");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       const pageWidth = doc.page.width;
       const pageHeight = doc.page.height;
