@@ -48,7 +48,6 @@ db.getConnection((err, connection) => {
   if (err) {
     console.log("❌ DB CONNECTION FAILED:");
     console.log(err);
-
     return;
   }
 
@@ -98,15 +97,6 @@ app.get("/db-test", (req, res) => {
 });
 
 
-// ========================================
-// START SERVER
-// ========================================
-
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
 
 
 // ================= LOGIN (FIXED & CLEAN) =================
@@ -2226,14 +2216,12 @@ app.post("/login", (req, res) => {
 
 });
 
-// 🔥 IMPORTANT FOR RENDER
-const PORT = process.env.PORT || 3000;
 
+// ========================================
+// START SERVER
+// ========================================
+const PORT = process.env.PORT || 10000;
 
-
-
-
-
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
