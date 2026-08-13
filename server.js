@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express();   // 🔥 MUST BE HERE FIRST
+const app = express();
 const mysql = require("mysql2");
 
 const bcrypt = require("bcrypt");
@@ -8,46 +8,143 @@ const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
 const ExcelJS = require("exceljs");
+const net = require("net");
+
+
+// ================================
+// MIDDLEWARE
+// ================================
+
 app.use(express.json());
 
 app.use(cors({
   origin: "*",
-  methods: ["GET","POST","PUT","DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"]
 }));
+
 app.use(express.urlencoded({ extended: true }));
 
 
-
+// ================================
+// MYSQL DATABASE
+// ================================
 
 const db = mysql.createPool({
-    host: "srv843.hstgr.io",
+  host: "srv843.hstgr.io",
   user: "u987008906_abinithi",
   password: "Abilogin@21",
   database: "u987008906_tuition_db",
   port: 3306,
+
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+
+  connectTimeout: 10000
 });
 
+
+// ================================
+// DATABASE CONNECTION TEST
+// ================================
 
 db.getConnection((err, connection) => {
+
   if (err) {
+
     console.log("❌ DB CONNECTION FAILED:");
-console.log(err);
+    console.log(err);
 
   } else {
+
     console.log("✅ DB CONNECTED SUCCESS");
+
     connection.release();
   }
+
 });
 
+
+// ================================
+// RENDER → MYSQL PORT TEST
+// ================================
+
+app.get("/db-test", (req, res) => {
+
+  const socket = new net.Socket();
+
+  socket.setTimeout(10000);
+
+  socket.on("connect", () => {
+
+    socket.destroy();
+
+    console.log("✅ Render can reach MySQL port 3306");
+
+    res.json({
+      success: true,
+      message: "MySQL port 3306 is reachable from Render"
+    });
+
+  });
+
+
+  socket.on("timeout", () => {
+
+    socket.destroy();
+
+    console.log("❌ MySQL port 3306 connection timed out");
+
+    res.status(500).json({
+      success: false,
+      message: "MySQL port 3306 connection timed out"
+    });
+
+  });
+
+
+  socket.on("error", (err) => {
+
+    socket.destroy();
+
+    console.log("❌ MySQL PORT TEST FAILED:");
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      error: err.code,
+      message: err.message
+    });
+
+  });
+
+
+  socket.connect(3306, "82.25.121.156");
+
+});
+
+
+// ================================
+// HOME ROUTE
+// ================================
 
 app.get("/", (req, res) => {
   res.send("Server Running 🚀");
 });
 
+
+// ================================
+// START SERVER
+// ================================
+
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, "0.0.0.0", () => {
+
+  console.log(`Server running on port ${PORT}`);
+
+});
 
 // ================= LOGIN (FIXED & CLEAN) =================
 app.post("/login", (req, res) => {
