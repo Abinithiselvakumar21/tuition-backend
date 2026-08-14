@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express();
+const app = express();   // 🔥 MUST BE HERE FIRST
 const mysql = require("mysql2");
 
 const bcrypt = require("bcrypt");
@@ -8,92 +8,44 @@ const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
 const ExcelJS = require("exceljs");
-
 app.use(express.json());
 
 app.use(cors({
   origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET","POST","PUT","DELETE"],
   allowedHeaders: ["Content-Type"]
 }));
-
 app.use(express.urlencoded({ extended: true }));
 
 
-// ========================================
-// MYSQL DATABASE CONNECTION
-// ========================================
+
 
 const db = mysql.createPool({
-  host: process.env.DB_HOST || "srv843.hstgr.io",
-  user: process.env.DB_USER || "u987008906_abinithi",
+    host: "srv843.hstgr.io",
+  user: "u987008906_abinithi",
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || "u987008906_tuition_db",
-  port: Number(process.env.DB_PORT) || 3306,
-
+  database: "u987008906_tuition_db",
+  port: 3306,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-
-  connectTimeout: 20000
+  queueLimit: 0
 });
 
-
-// ========================================
-// CHECK DATABASE CONNECTION
-// ========================================
 
 db.getConnection((err, connection) => {
-
   if (err) {
     console.log("❌ DB CONNECTION FAILED:");
-    console.log(err);
-    return;
+console.log(err);
+
+  } else {
+    console.log("✅ DB CONNECTED SUCCESS");
+    connection.release();
   }
-
-  console.log("✅ DB CONNECTED SUCCESS");
-
-  connection.release();
 });
 
-
-// ========================================
-// HOME
-// ========================================
 
 app.get("/", (req, res) => {
   res.send("Server Running 🚀");
-});
-
-
-// ========================================
-// DATABASE TEST
-// ========================================
-
-app.get("/db-test", (req, res) => {
-
-  db.query("SELECT 1 AS test", (err, result) => {
-
-    if (err) {
-
-      console.log("❌ DATABASE TEST FAILED:");
-      console.log(err);
-
-      return res.status(500).json({
-        success: false,
-        message: "Database connection failed",
-        error: err.code
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Database connected successfully ✅",
-      result: result
-    });
-
-  });
-
 });
 
 
