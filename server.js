@@ -1,52 +1,78 @@
 const express = require("express");
-const app = express();   // 🔥 MUST BE HERE FIRST
-const mysql = require("mysql2");
+const app = express();
 
+const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
 const ExcelJS = require("exceljs");
+
+// ======================================================
+// MIDDLEWARE
+// ======================================================
+
 app.use(express.json());
 
-app.use(cors({
-  origin: "*",
-  methods: ["GET","POST","PUT","DELETE"],
-  allowedHeaders: ["Content-Type"]
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
 app.use(express.urlencoded({ extended: true }));
 
-
-
+// ======================================================
+// DATABASE CONNECTION
+// ======================================================
 
 const db = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: Number(process.env.DB_PORT || 3306),
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  port: Number(process.env.DB_PORT || 3306),
+
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
+// ======================================================
+// TEST DATABASE CONNECTION
+// ======================================================
 
 db.getConnection((err, connection) => {
   if (err) {
     console.log("❌ DB CONNECTION FAILED:");
-console.log(err);
-
+    console.log(err);
   } else {
     console.log("✅ DB CONNECTED SUCCESS");
     connection.release();
   }
 });
 
+// ======================================================
+// TEST ROUTE
+// ======================================================
 
 app.get("/", (req, res) => {
   res.send("Server Running 🚀");
 });
+
+// ======================================================
+// START SERVER
+// ======================================================
+
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+```
 
 
 
