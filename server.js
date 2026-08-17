@@ -1,78 +1,52 @@
 const express = require("express");
-const app = express();
-
+const app = express();   // 🔥 MUST BE HERE FIRST
 const mysql = require("mysql2");
+
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
 const ExcelJS = require("exceljs");
-
-// ======================================================
-// MIDDLEWARE
-// ======================================================
-
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
-
+app.use(cors({
+  origin: "*",
+  methods: ["GET","POST","PUT","DELETE"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(express.urlencoded({ extended: true }));
 
-// ======================================================
-// DATABASE CONNECTION
-// ======================================================
+
+
 
 const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: Number(process.env.DB_PORT || 3306),
-
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: Number(process.env.DB_PORT || 3306),
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-// ======================================================
-// TEST DATABASE CONNECTION
-// ======================================================
 
 db.getConnection((err, connection) => {
   if (err) {
     console.log("❌ DB CONNECTION FAILED:");
-    console.log(err);
+console.log(err);
+
   } else {
     console.log("✅ DB CONNECTED SUCCESS");
     connection.release();
   }
 });
 
-// ======================================================
-// TEST ROUTE
-// ======================================================
 
 app.get("/", (req, res) => {
   res.send("Server Running 🚀");
 });
-
-// ======================================================
-// START SERVER
-// ======================================================
-
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
-```
 
 
 
@@ -82,13 +56,25 @@ app.post("/login", (req, res) => {
 
   const { admission_number, password } = req.body;
 
+  if (!admission_number || !password) {
+    return res.status(400).send("Admission number and password required");
+  }
+
   const checkPassword = async (input, dbPassword) => {
     try {
-      if (dbPassword && dbPassword.startsWith("$2")) {
+
+      if (!dbPassword) {
+        return false;
+      }
+
+      if (dbPassword.startsWith("$2")) {
         return await bcrypt.compare(input, dbPassword);
       }
+
       return input === dbPassword;
-    } catch {
+
+    } catch (error) {
+      console.log("PASSWORD CHECK ERROR:", error);
       return false;
     }
   };
@@ -97,7 +83,9 @@ app.post("/login", (req, res) => {
 
     const match = await checkPassword(password, user.password);
 
-    if (!match) return res.status(401).send("Invalid user");
+    if (!match) {
+      return res.status(401).send("Invalid user");
+    }
 
     if ((user.status || "").toLowerCase() !== "active") {
       return res.status(401).send("Inactive user");
@@ -109,41 +97,46 @@ app.post("/login", (req, res) => {
     });
   };
 
-  // TUITION
-db.query(
-  "SELECT * FROM students WHERE admission_number=?",
-  [admission_number],
-  async (err, result) => {
+  // ================= TUITION =================
+  db.query(
+    "SELECT * FROM students WHERE admission_number=?",
+    [admission_number],
+    async (err, result) => {
 
-    if (err) {
-      console.log(err);
-      return res.status(500).send("Server error");
-    }
+      if (err) {
+        console.log("TUITION LOGIN ERROR:", err);
+        return res.status(500).send("Server error");
+      }
 
-    if (result.length > 0) {
-      return handleUser(result[0], "tuition");
-    }
+      if (result.length > 0) {
+        return handleUser(result[0], "tuition");
+      }
 
-
-      // COMPUTER
+      // ================= COMPUTER =================
       db.query(
         "SELECT * FROM computer_students WHERE admission_number=?",
         [admission_number],
         async (err2, result2) => {
 
-          if (err2) return res.status(500).send("Server error");
+          if (err2) {
+            console.log("COMPUTER LOGIN ERROR:", err2);
+            return res.status(500).send("Server error");
+          }
 
           if (result2.length > 0) {
             return handleUser(result2[0], "computer");
           }
 
-          // TUTORIAL
+          // ================= TUTORIAL =================
           db.query(
             "SELECT * FROM tutorial_registration WHERE admission_number=?",
             [admission_number],
             async (err3, result3) => {
 
-              if (err3) return res.status(500).send("Server error");
+              if (err3) {
+                console.log("TUTORIAL LOGIN ERROR:", err3);
+                return res.status(500).send("Server error");
+              }
 
               if (result3.length > 0) {
                 return handleUser(result3[0], "tutorial");
@@ -156,7 +149,7 @@ db.query(
       );
     }
   );
-}); // 🔥 THIS IS THE MISSING CLOSING BRACE
+});
 
 
 
@@ -2111,22 +2104,7 @@ app.get("/tutorial-students/excel", (req, res) => {
 
 });
 
-// ================= LOGIN =================
-app.post("/login", (req, res) => {
 
-  const { admission_number, password } = req.body;
-
-  // 🔐 password check function
-  const checkPassword = async (input, dbPassword) => {
-    try {
-      if (dbPassword && dbPassword.startsWith("$2")) {
-        return await bcrypt.compare(input, dbPassword);
-      }
-      return input === dbPassword;
-    } catch {
-      return false;
-    }
-  };
 
   // 🔄 common handler
   const handleUser = async (user, type) => {
